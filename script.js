@@ -316,7 +316,7 @@ function getIconColor(reason, isExpense) {
 
 // === GESTION DES COMPTES (PIE CHART) ===
 const accountCtx = document.getElementById('accountChart').getContext('2d');
-let accountChart = new Chart(ctx, {
+let accountChart = new Chart(accountCtx, { // CORRECTION: Utiliser accountCtx pour le graphique des comptes
   type: 'pie',
   data: {
     labels: [],
@@ -510,13 +510,19 @@ function fetchStocks() {
 
 // === NAVIGATION (Single Page Application - SPA) ===
 function showSection(target) {
-  // 1. Masquer toutes les sections et les canvas
-  document.querySelectorAll('.main > section, .main > canvas').forEach(el => {
+  // 1. Masquer toutes les sections
+  document.querySelectorAll('.main > section').forEach(el => {
     el.style.display = 'none';
   });
 
+  // Masquer les canvas manuellement
+  document.getElementById('balanceChart').style.display = 'none';
+  document.getElementById('accountChart').style.display = 'none';
+
+
   // 2. Retirer la classe active de tous les éléments de navigation
-  document.querySelectorAll('.sidebar li, .bottom-nav li').forEach(li => li.classList.remove('active'));
+  // Cible uniquement les éléments dans la sidebar (car pas de .bottom-nav dans le HTML)
+  document.querySelectorAll('.sidebar li').forEach(li => li.classList.remove('active'));
 
   // 3. Afficher la section ciblée
   const targetElement = document.getElementById(`section-${target}`);
@@ -524,14 +530,18 @@ function showSection(target) {
       targetElement.style.display = (target === 'tableau') ? 'flex' : 'block'; 
   }
 
-  // 4. Afficher les éléments spécifiques au tableau de bord
+  // 4. Afficher les éléments spécifiques
   if (target === 'tableau') {
       document.getElementById('balanceChart').style.display = 'block'; 
       updateCombinedTransactionList(); 
   }
+  
+  if (target === 'comptes') { // Ajout de la logique pour afficher le graphique des comptes
+      document.getElementById('accountChart').style.display = 'block';
+  }
 
   // 5. Activer le lien correspondant
-  const activeLink = document.querySelector(`.sidebar li[data-target="${target}"], .bottom-nav li[data-target="${target}"]`);
+  const activeLink = document.querySelector(`.sidebar li[data-target="${target}"]`); // Simplifié
   if (activeLink) {
       activeLink.classList.add('active');
   }
@@ -542,8 +552,9 @@ function showSection(target) {
   }
 }
 
-// === Gestion des clics sur la sidebar et la barre du bas ===
-const allNavLinks = document.querySelectorAll('.sidebar li, .bottom-nav li');
+// === Gestion des clics sur la sidebar ===
+// Cible uniquement les liens de la sidebar
+const allNavLinks = document.querySelectorAll('.sidebar li'); 
 
 allNavLinks.forEach(link => {
   link.addEventListener('click', () => {
