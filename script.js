@@ -100,7 +100,7 @@ function updateChart() {
 }
 
 
-// === GESTION DES MODALES ===
+// === GESTION DES MODALES (CORRIGÉ: Ajout du focus pour le clavier) ===
 const modalAddMoney = document.getElementById('modal-add-money');
 const modalWithdrawMoney = document.getElementById('modal-withdraw-money');
 const closeButtons = document.querySelectorAll('.close-button');
@@ -110,8 +110,16 @@ document.querySelectorAll('.action-item').forEach(item => {
         const action = e.currentTarget.dataset.action;
         if (action === 'add-money') {
             modalAddMoney.style.display = 'flex';
+            // Utiliser setTimeout pour forcer le focus (CORRIGÉ)
+            setTimeout(() => {
+                document.getElementById('incomeAmount').focus(); 
+            }, 0); 
         } else if (action === 'withdraw-money') {
             modalWithdrawMoney.style.display = 'flex';
+            // Utiliser setTimeout pour forcer le focus (CORRIGÉ)
+            setTimeout(() => {
+                document.getElementById('amount').focus(); 
+            }, 0);
         }
     });
 });
@@ -283,34 +291,34 @@ function getIcon(reason) {
         case 'sport': return '🏋️';
         // Général
         case 'autres':
-        default: return '❓'; // CORRIGÉ: Icône pour "Autres"
+        default: return '❓'; // Icône pour "Autres"
     }
 }
 
-// CORRIGÉ: Détermine la couleur de fond de l'icône, spécifiquement pour les revenus/dépenses "Autres"
+// Détermine la couleur de fond de l'icône
 function getIconColor(reason, isExpense) {
     
     if (isExpense) {
-        return '#FF5F6D'; // Rouge pour toutes les dépenses, y compris "Autres"
+        return '#FF5F6D'; // Rouge pour toutes les dépenses
     }
     
     switch (reason.toLowerCase()) {
         case 'salaire':
         case 'prime':
         case 'anniversaire':
-        case 'autres': // CORRIGÉ: "Autres" est maintenant vert si c'est un revenu
-            return '#4CD964'; // Vert pour revenus
+        case 'autres': 
+            return '#4CD964'; // Vert pour revenus (y compris 'Autres')
         case 'nourriture':
-            return '#007AFF'; // Bleu
+            return '#007AFF'; // Bleu pour nourriture si ce n'est pas une dépense
         default: 
-            return '#8F7CF9'; // Violet par défaut
+            return '#8F7CF9'; // Violet par défaut pour autres revenus
     }
 }
 
 
 // === GESTION DES COMPTES (PIE CHART) ===
 const accountCtx = document.getElementById('accountChart').getContext('2d');
-let accountChart = new Chart(accountCtx, {
+let accountChart = new Chart(ctx, {
   type: 'pie',
   data: {
     labels: [],
