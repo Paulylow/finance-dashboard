@@ -100,7 +100,7 @@ function updateChart() {
 }
 
 
-// === GESTION DES MODALES (CORRIGÉ: Ajout du focus pour le clavier) ===
+// === GESTION DES MODALES (CORRECTION DU CLAVIER IOS) ===
 const modalAddMoney = document.getElementById('modal-add-money');
 const modalWithdrawMoney = document.getElementById('modal-withdraw-money');
 const closeButtons = document.querySelectorAll('.close-button');
@@ -108,14 +108,19 @@ const closeButtons = document.querySelectorAll('.close-button');
 document.querySelectorAll('.action-item').forEach(item => {
     item.addEventListener('click', (e) => {
         const action = e.currentTarget.dataset.action;
+        
         if (action === 'add-money') {
             modalAddMoney.style.display = 'flex';
-            // FORCER LE FOCUS SUR LE CHAMP DE MONTANT DE REVENU
-            document.getElementById('incomeAmount').focus(); 
+            // CORRECTION: Utiliser setTimeout pour forcer le focus
+            setTimeout(() => {
+                document.getElementById('incomeAmount').focus(); 
+            }, 0); 
         } else if (action === 'withdraw-money') {
             modalWithdrawMoney.style.display = 'flex';
-            // FORCER LE FOCUS SUR LE CHAMP DE MONTANT DE DÉPENSE
-            document.getElementById('amount').focus(); 
+            // CORRECTION: Utiliser setTimeout pour forcer le focus
+            setTimeout(() => {
+                document.getElementById('amount').focus(); 
+            }, 0);
         }
     });
 });
@@ -302,8 +307,8 @@ function getIconColor(reason, isExpense) {
         case 'salaire':
         case 'prime':
         case 'anniversaire':
-        case 'autres': // Maintenant vert pour tous les revenus non spécifiques
-            return '#4CD964'; // Vert pour revenu
+        case 'autres': 
+            return '#4CD964'; // Vert pour revenus
         case 'nourriture':
             return '#007AFF'; // Bleu pour nourriture si ce n'est pas une dépense
         default: 
@@ -314,7 +319,7 @@ function getIconColor(reason, isExpense) {
 
 // === GESTION DES COMPTES (PIE CHART) ===
 const accountCtx = document.getElementById('accountChart').getContext('2d');
-let accountChart = new Chart(accountCtx, {
+let accountChart = new Chart(ctx, {
   type: 'pie',
   data: {
     labels: [],
