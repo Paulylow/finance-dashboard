@@ -56,6 +56,7 @@ body {
 .sidebar li[data-target="tableau"]::before { content: '🏠'; }
 .sidebar li[data-target="comptes"]::before { content: '💳'; }
 .sidebar li[data-target="historique"]::before { content: '⏳'; }
+.sidebar li[data-target="parametres"]::before { content: '⚙️'; }
 
 
 .sidebar li:hover {
@@ -230,17 +231,11 @@ body {
     margin-top: 20px;
     margin-bottom: 5px;
 }
-
-/* Correction: Espacement dans la section Archives */
-.history-section select {
-    margin-bottom: 15px;
-}
 .history-summary {
     display: flex;
     gap: 10px;
-    /* Correction: Espace pour séparer le sélecteur de mois des cartes récapitulatives */
     margin-top: 15px; 
-    margin-bottom: 25px; /* Espace sous les cartes récapitulatives */
+    margin-bottom: 25px; 
 }
 .history-summary .card {
     flex: 1;
@@ -540,8 +535,7 @@ canvas {
 
   .main {
     padding: 15px;
-    /* CORRECTION: Augmenter le padding-bottom pour le graphique (plus d'espace) */
-    padding-bottom: 120px; 
+    padding-bottom: 120px; /* CORRECTION: Augmenter le padding-bottom pour dégager le graphique */
   }
   
   .header-main {
@@ -587,19 +581,6 @@ canvas {
   .close-button {
       font-size: 24px;
   }
-  
-  /* Section Archives Mobile */
-  .history-section h2 {
-      margin-bottom: 5px;
-  }
-  .history-summary {
-      margin-top: 15px;
-      margin-bottom: 15px; /* Réduire l'espace vertical dans la vue */
-  }
-  .history-section h3 {
-      margin-top: 10px;
-  }
-
 
   .accounts-section, #section-parametres {
       padding: 20px;
@@ -613,9 +594,6 @@ canvas {
   #addAccountForm input:first-child {
       grid-column: 1 / span 2; /* Nom du compte prend toute la largeur */
       margin-bottom: 10px; /* Espace entre le Nom et le Solde */
-  }
-  #addAccountForm input:nth-child(2) {
-      margin-bottom: 0; /* Assurer que le solde n'a pas de marge en bas */
   }
   #addAccountForm button {
       grid-column: 2 / span 1; /* Le bouton à droite */
