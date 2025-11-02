@@ -303,7 +303,6 @@ body {
     color: #B0B0B0;
     white-space: normal; 
     word-break: break-word; 
-    /* CORRECTION: Réduire la largeur disponible sur mobile */
     max-width: 100%; 
 }
 
