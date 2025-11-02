@@ -287,7 +287,7 @@ function getIcon(reason) {
     }
 }
 
-// CORRIGÉ: Ajout du paramètre isExpense pour déterminer la couleur de fond
+// CORRIGÉ: Détermine la couleur de fond de l'icône
 function getIconColor(reason, isExpense) {
     if (isExpense) {
         return '#FF5F6D'; // Rouge pour toutes les dépenses
