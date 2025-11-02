@@ -8,8 +8,8 @@
 
 body {
   font-family: 'Poppins', sans-serif;
-  background: #000000; /* Fond noir pour un contraste maximal */
-  color: #E0E0E0; /* Gris clair pour le texte par défaut */
+  background: #000000;
+  color: #E0E0E0;
   display: flex;
   min-height: 100vh;
   overflow-x: hidden;
@@ -20,14 +20,14 @@ body {
 /* ------------------ */
 .sidebar {
   width: 220px;
-  background: #1C1C1E; /* Fond sombre pour la sidebar */
+  background: #1C1C1E;
   padding: 20px 0;
   border-right: 1px solid #333;
   z-index: 100; 
 }
 
 .sidebar h2 {
-  color: #8F7CF9; /* Accent pour le titre */
+  color: #8F7CF9;
   text-align: center;
   margin-bottom: 30px;
   font-weight: 700;
@@ -49,13 +49,13 @@ body {
   gap: 10px;
 }
 
-.sidebar li::before { /* Icônes via pseudo-éléments pour le desktop */
+.sidebar li::before {
     font-size: 18px;
-    line-height: 1; /* Aligner */
+    line-height: 1;
 }
 .sidebar li[data-target="tableau"]::before { content: '🏠'; }
 .sidebar li[data-target="comptes"]::before { content: '💳'; }
-.sidebar li[data-target="actions"]::before { content: '📈'; }
+/* ACTIONS SUPPRIMÉES */
 .sidebar li[data-target="parametres"]::before { content: '⚙️'; }
 
 
@@ -69,7 +69,7 @@ body {
 /* ------------------ */
 .main {
   flex: 1;
-  padding: 20px; /* Réduire légèrement le padding global */
+  padding: 20px;
   overflow-y: auto;
   width: 100%;
 }
@@ -99,10 +99,10 @@ body {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background-image: url('avatar.jpg'); /* Remplacez par votre avatar */
+    background-image: url('avatar.jpg');
     background-size: cover;
     background-position: center;
-    border: 2px solid #5A49E2; /* Bordure d'accent */
+    border: 2px solid #5A49E2;
 }
 .user-info p {
     font-weight: 600;
@@ -122,7 +122,7 @@ body {
     padding: 8px 15px;
     color: #E0E0E0;
     font-size: 14px;
-    width: 150px; /* Ajuster la largeur si nécessaire */
+    width: 150px;
 }
 .search-menu input::placeholder {
     color: #6C6C6C;
@@ -141,18 +141,18 @@ body {
 .icon-button img {
     width: 24px;
     height: 24px;
-    filter: invert(100%) brightness(0) saturate(100%) hue-rotate(240deg) brightness(1.5); /* Couleur violette */
+    filter: invert(100%) brightness(0) saturate(100%) hue-rotate(240deg) brightness(1.5);
 }
 
 
 /* Carte du solde principal */
 .balance-card {
-    background: linear-gradient(135deg, #5A49E2, #8F7CF9); /* Gradient Revolut-like */
-    border-radius: 18px; /* Plus arrondi */
+    background: linear-gradient(135deg, #5A49E2, #8F7CF9);
+    border-radius: 18px;
     padding: 30px 25px;
     text-align: center;
     box-shadow: 0 8px 20px rgba(0,0,0,0.5);
-    margin-top: 10px; /* Espace après le header */
+    margin-top: 10px;
     color: white;
 }
 
@@ -163,14 +163,14 @@ body {
 }
 
 .balance-amount {
-    font-size: 48px; /* Grande taille pour le montant */
+    font-size: 48px;
     font-weight: 700;
     margin: 0 0 20px 0;
     letter-spacing: -1px;
 }
 
 .account-button {
-    background: rgba(255,255,255,0.2); /* Bouton Comptes transparent */
+    background: rgba(255,255,255,0.2);
     border: none;
     border-radius: 20px;
     padding: 8px 20px;
@@ -209,13 +209,13 @@ body {
     width: 50px;
     height: 50px;
     border-radius: 50%;
-    background: #1C1C1E; /* Fond pour l'icône */
+    background: #1C1C1E;
     display: flex;
     justify-content: center;
     align-items: center;
     font-size: 24px;
     font-weight: 600;
-    color: #8F7CF9; /* Couleur d'accent pour les icônes */
+    color: #8F7CF9;
     box-shadow: 0 2px 5px rgba(0,0,0,0.3);
 }
 .action-item p {
@@ -226,7 +226,7 @@ body {
 /* Transactions récentes */
 .transactions-summary {
     margin-top: 30px;
-    background: #1C1C1E; /* Fond pour le bloc des transactions */
+    background: #1C1C1E;
     border-radius: 18px;
     padding: 20px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.3);
@@ -268,7 +268,7 @@ body {
     justify-content: center;
     align-items: center;
     font-size: 18px;
-    color: #8F7CF9; /* Couleur d'accent par défaut */
+    color: #8F7CF9;
 }
 
 .transaction-details {
@@ -297,7 +297,7 @@ body {
 input, select { 
   padding: 12px;
   border-radius: 10px;
-  border: 1px solid #444; /* Bordure subtile */
+  border: 1px solid #444;
   outline: none;
   background: #2b2b2b;
   color: #E0E0E0;
@@ -350,17 +350,18 @@ canvas {
   width: 100%;
 }
 
-/* Modales */
+/* Modales (CORRIGÉ: position:fixed pour garantir l'affichage) */
 .modal {
-    display: none; /* Hidden by default */
-    position: fixed; /* Stay in place */
-    z-index: 200; /* Sit on top */
+    display: none;
+    position: fixed; 
+    z-index: 200;
     left: 0;
     top: 0;
-    width: 100%; /* Full width */
-    height: 100%; /* Full height */
-    overflow: auto; /* Enable scroll if needed */
-    background-color: rgba(0,0,0,0.8); /* Black w/ opacity */
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.8);
+    /* Utiliser flex pour centrer le contenu */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -368,10 +369,9 @@ canvas {
 
 .modal-content {
     background-color: #1C1C1E;
-    margin: auto;
     padding: 30px;
     border-radius: 18px;
-    width: 90%; /* Responsive width */
+    width: 90%;
     max-width: 500px;
     position: relative;
     box-shadow: 0 10px 30px rgba(0,0,0,0.7);
@@ -399,14 +399,14 @@ canvas {
 }
 
 /* Sections pour Comptes et Actions */
-.accounts-section, .stocks-section, #section-parametres {
+.accounts-section, #section-parametres { /* ACTIONS SUPPRIMÉES */
     background: #1C1C1E;
     border-radius: 18px;
     padding: 25px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     margin-top: 20px;
 }
-.accounts-section h2, .stocks-section h2 {
+.accounts-section h2, #section-parametres h2 {
     color: #8F7CF9;
     font-size: 20px;
     margin-bottom: 20px;
@@ -414,7 +414,7 @@ canvas {
     padding-bottom: 10px;
 }
 
-.card-list div { /* Style pour les listes de comptes et actions */
+.card-list div {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -488,7 +488,6 @@ canvas {
   }
   .sidebar li[data-target="tableau"]::before { content: '🏠'; font-size: 22px; margin-bottom: 3px; display: block;}
   .sidebar li[data-target="comptes"]::before { content: '💳'; font-size: 22px; margin-bottom: 3px; display: block;}
-  .sidebar li[data-target="actions"]::before { content: '📈'; font-size: 22px; margin-bottom: 3px; display: block;}
   .sidebar li[data-target="parametres"]::before { content: '⚙️'; font-size: 22px; margin-bottom: 3px; display: block;}
 
 
@@ -497,7 +496,6 @@ canvas {
     padding-bottom: 70px; 
   }
   
-  /* Header principal mobile */
   .header-main {
       flex-wrap: wrap; 
       gap: 15px;
@@ -513,7 +511,6 @@ canvas {
     font-size: 14px;
   }
 
-  /* Carte du solde mobile */
   .balance-card {
       padding: 25px 20px;
       margin-top: 0; 
@@ -522,7 +519,6 @@ canvas {
       font-size: 40px;
   }
 
-  /* Actions rapides mobile */
   .quick-actions {
       gap: 10px;
       flex-wrap: wrap; 
@@ -538,7 +534,6 @@ canvas {
       font-size: 20px;
   }
 
-  /* Modales mobiles */
   .modal-content {
       width: 95%;
       padding: 25px;
@@ -547,11 +542,10 @@ canvas {
       font-size: 24px;
   }
 
-  /* Autres sections mobiles */
-  .accounts-section, .stocks-section, #section-parametres {
+  .accounts-section, #section-parametres {
       padding: 20px;
   }
-  .accounts-section h2, .stocks-section h2 {
+  .accounts-section h2, #section-parametres h2 {
       font-size: 18px;
   }
   .card-list div {
