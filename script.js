@@ -416,8 +416,6 @@ navLinks.forEach(link => {
 
 // NOUVEAU: Fonction pour forcer la fermeture des modales au démarrage
 function ensureModalsClosed() {
-    // Les modales sont masquées via style="display: none;" dans le HTML pour la fiabilité.
-    // Cette fonction sert de sécurité supplémentaire.
     document.getElementById('modal-add-money').style.display = 'none';
     document.getElementById('modal-withdraw-money').style.display = 'none';
 }
