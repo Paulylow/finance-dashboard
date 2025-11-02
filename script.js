@@ -518,13 +518,13 @@ function showSection(target) {
   });
   document.querySelectorAll('.sidebar li').forEach(li => li.classList.remove('active'));
 
-  // 2. Afficher la section ciblée avec le bon display mode
+  // 2. Afficher la section ciblée avec le bon display mode (CORRIGÉ)
   const targetElement = document.getElementById(`section-${target}`);
   if (targetElement) {
-      // Le tableau de bord utilise flex pour l'organisation
+      // Tableau de bord utilise flex pour l'organisation; les autres utilisent block.
       targetElement.style.display = (target === 'tableau') ? 'flex' : 'block'; 
   } else {
-      // S'assurer qu'au moins le tableau de bord s'affiche en cas d'erreur de cible
+      // Fallback: Afficher le tableau de bord si la cible est invalide
       document.getElementById('section-tableau').style.display = 'flex';
       target = 'tableau'; 
   }
