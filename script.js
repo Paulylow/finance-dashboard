@@ -226,7 +226,7 @@ function updateCombinedTransactionList() {
         
         const li = document.createElement('li');
         li.innerHTML = `
-            <div class="transaction-icon" style="background:${getIconColor(t.reason)};">${getIcon(t.reason)}</div>
+            <div class="transaction-icon" style="background:${getIconColor(t.reason, isExpense)};">${getIcon(t.reason)}</div>
             <div class="transaction-details">
                 <strong>${t.reason}</strong>
                 <span>${t.time} - ${t.date} [${t.account}]</span>
@@ -283,25 +283,25 @@ function getIcon(reason) {
         case 'sport': return '🏋️';
         // Général
         case 'autres':
-        default: return '📝';
+        default: return '❓'; // CORRIGÉ: Icône pour "Autres"
     }
 }
 
-function getIconColor(reason) {
+// CORRIGÉ: Ajout du paramètre isExpense pour déterminer la couleur de fond
+function getIconColor(reason, isExpense) {
+    if (isExpense) {
+        return '#FF5F6D'; // Rouge pour toutes les dépenses
+    }
+    
     switch (reason.toLowerCase()) {
         case 'salaire':
         case 'prime':
         case 'anniversaire':
             return '#4CD964'; // Vert pour revenu
-        case 'voiture':
-        case 'transport':
-        case 'téléphone':
-        case 'sport':
-            return '#FF5F6D'; // Rouge pour dépense
         case 'nourriture':
-            return '#007AFF'; // Bleu
+            return '#007AFF'; // Bleu pour nourriture si ce n'est pas une dépense
         default: 
-            return '#8F7CF9'; // Violet par défaut
+            return '#8F7CF9'; // Violet par défaut pour revenus
     }
 }
 
@@ -474,7 +474,7 @@ function updateHistory() {
         
         const li = document.createElement('li');
         li.innerHTML = `
-            <div class="transaction-icon" style="background:${getIconColor(t.reason)};">${getIcon(t.reason)}</div>
+            <div class="transaction-icon" style="background:${getIconColor(t.reason, isExpense)};">${getIcon(t.reason)}</div>
             <div class="transaction-details">
                 <strong>${t.reason}</strong>
                 <span>${t.time} - ${t.date} [${t.account}]</span>
