@@ -512,13 +512,13 @@ function fetchStocks() {
 const navLinks = document.querySelectorAll('.sidebar li');
 
 function showSection(target) {
-  // 1. Masquer toutes les sections
+  // 1. Masquer toutes les sections (CORRIGÉ: Ciblage plus large)
   document.querySelectorAll('.main > section').forEach(el => {
     el.style.display = 'none';
   });
   document.querySelectorAll('.sidebar li').forEach(li => li.classList.remove('active'));
 
-  // 2. Afficher la section ciblée avec le bon display mode (CORRIGÉ)
+  // 2. Afficher la section ciblée avec le bon display mode
   const targetElement = document.getElementById(`section-${target}`);
   if (targetElement) {
       // Tableau de bord utilise flex pour l'organisation; les autres utilisent block.
@@ -561,30 +561,3 @@ updateAccountList();
 updateAccountChart();
 updateAccountSelects();
 ensureModalsClosed();
-
-// === Gestion de la navigation entre les onglets ===
-
-// Sélectionne les éléments du menu (barre du bas ou latérale)
-const navItems = document.querySelectorAll('.sidebar ul li, .bottom-nav li');
-const sections = document.querySelectorAll('section');
-
-navItems.forEach(item => {
-  item.addEventListener('click', () => {
-    // Récupère la section cible à afficher
-    const target = item.getAttribute('data-target');
-
-    // Cache toutes les sections
-    sections.forEach(sec => sec.classList.add('hidden'));
-
-    // Affiche seulement la section correspondante
-    const targetSection = document.getElementById(target);
-    if (targetSection) {
-      targetSection.classList.remove('hidden');
-    }
-
-    // Met à jour l’onglet actif visuellement
-    navItems.forEach(i => i.classList.remove('active'));
-    item.classList.add('active');
-  });
-});
-
