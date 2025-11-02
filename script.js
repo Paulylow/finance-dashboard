@@ -100,7 +100,7 @@ function updateChart() {
 }
 
 
-// === GESTION DES MODALES (CORRIGÉ: Ajout du focus pour le clavier) ===
+// === GESTION DES MODALES ===
 const modalAddMoney = document.getElementById('modal-add-money');
 const modalWithdrawMoney = document.getElementById('modal-withdraw-money');
 const closeButtons = document.querySelectorAll('.close-button');
@@ -110,12 +110,8 @@ document.querySelectorAll('.action-item').forEach(item => {
         const action = e.currentTarget.dataset.action;
         if (action === 'add-money') {
             modalAddMoney.style.display = 'flex';
-            // FORCER LE FOCUS SUR LE CHAMP DE MONTANT DE REVENU
-            document.getElementById('incomeAmount').focus(); 
         } else if (action === 'withdraw-money') {
             modalWithdrawMoney.style.display = 'flex';
-            // FORCER LE FOCUS SUR LE CHAMP DE MONTANT DE DÉPENSE
-            document.getElementById('amount').focus(); 
         }
     });
 });
@@ -287,27 +283,27 @@ function getIcon(reason) {
         case 'sport': return '🏋️';
         // Général
         case 'autres':
-        default: return '❓'; // Icône pour "Autres"
+        default: return '❓'; // CORRIGÉ: Icône pour "Autres"
     }
 }
 
-// Détermine la couleur de fond de l'icône, spécifiquement pour les revenus/dépenses "Autres"
+// CORRIGÉ: Détermine la couleur de fond de l'icône, spécifiquement pour les revenus/dépenses "Autres"
 function getIconColor(reason, isExpense) {
     
     if (isExpense) {
-        return '#FF5F6D'; // Rouge pour toutes les dépenses
+        return '#FF5F6D'; // Rouge pour toutes les dépenses, y compris "Autres"
     }
     
     switch (reason.toLowerCase()) {
         case 'salaire':
         case 'prime':
         case 'anniversaire':
-        case 'autres': // Maintenant vert pour tous les revenus non spécifiques
-            return '#4CD964'; // Vert pour revenu
+        case 'autres': // CORRIGÉ: "Autres" est maintenant vert si c'est un revenu
+            return '#4CD964'; // Vert pour revenus
         case 'nourriture':
-            return '#007AFF'; // Bleu pour nourriture si ce n'est pas une dépense
+            return '#007AFF'; // Bleu
         default: 
-            return '#8F7CF9'; // Violet par défaut pour autres revenus
+            return '#8F7CF9'; // Violet par défaut
     }
 }
 
