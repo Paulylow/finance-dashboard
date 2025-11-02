@@ -1,3 +1,4 @@
+
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
 * {
@@ -8,8 +9,8 @@
 
 body {
   font-family: 'Poppins', sans-serif;
-  background: #000000;
-  color: #E0E0E0;
+  background: #000000; /* Fond noir pour un contraste maximal */
+  color: #E0E0E0; /* Gris clair pour le texte par défaut */
   display: flex;
   min-height: 100vh;
   overflow-x: hidden;
@@ -20,14 +21,14 @@ body {
 /* ------------------ */
 .sidebar {
   width: 220px;
-  background: #1C1C1E;
+  background: #1C1C1E; /* Fond sombre pour la sidebar */
   padding: 20px 0;
   border-right: 1px solid #333;
   z-index: 100; 
 }
 
 .sidebar h2 {
-  color: #8F7CF9;
+  color: #8F7CF9; /* Accent pour le titre */
   text-align: center;
   margin-bottom: 30px;
   font-weight: 700;
@@ -49,13 +50,12 @@ body {
   gap: 10px;
 }
 
-.sidebar li::before {
+.sidebar li::before { /* Icônes via pseudo-éléments pour le desktop */
     font-size: 18px;
-    line-height: 1;
+    line-height: 1; /* Aligner */
 }
 .sidebar li[data-target="tableau"]::before { content: '🏠'; }
 .sidebar li[data-target="comptes"]::before { content: '💳'; }
-/* ACTIONS SUPPRIMÉES */
 .sidebar li[data-target="parametres"]::before { content: '⚙️'; }
 
 
@@ -69,7 +69,7 @@ body {
 /* ------------------ */
 .main {
   flex: 1;
-  padding: 20px;
+  padding: 20px; /* Réduire légèrement le padding global */
   overflow-y: auto;
   width: 100%;
 }
@@ -99,10 +99,10 @@ body {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background-image: url('avatar.jpg');
+    background-image: url('avatar.jpg'); /* Remplacez par votre avatar */
     background-size: cover;
     background-position: center;
-    border: 2px solid #5A49E2;
+    border: 2px solid #5A49E2; /* Bordure d'accent */
 }
 .user-info p {
     font-weight: 600;
@@ -113,19 +113,7 @@ body {
     display: flex;
     align-items: center;
     gap: 10px;
-}
-
-.search-menu input {
-    background: #1C1C1E;
-    border: none;
-    border-radius: 10px;
-    padding: 8px 15px;
-    color: #E0E0E0;
-    font-size: 14px;
-    width: 150px;
-}
-.search-menu input::placeholder {
-    color: #6C6C6C;
+    /* SUPPRIMÉ: input de recherche */
 }
 
 .icon-button {
@@ -141,18 +129,18 @@ body {
 .icon-button img {
     width: 24px;
     height: 24px;
-    filter: invert(100%) brightness(0) saturate(100%) hue-rotate(240deg) brightness(1.5);
+    filter: invert(100%) brightness(0) saturate(100%) hue-rotate(240deg) brightness(1.5); /* Couleur violette */
 }
 
 
 /* Carte du solde principal */
 .balance-card {
-    background: linear-gradient(135deg, #5A49E2, #8F7CF9);
-    border-radius: 18px;
+    background: linear-gradient(135deg, #5A49E2, #8F7CF9); /* Gradient Revolut-like */
+    border-radius: 18px; /* Plus arrondi */
     padding: 30px 25px;
     text-align: center;
     box-shadow: 0 8px 20px rgba(0,0,0,0.5);
-    margin-top: 10px;
+    margin-top: 10px; /* Espace après le header */
     color: white;
 }
 
@@ -163,14 +151,14 @@ body {
 }
 
 .balance-amount {
-    font-size: 48px;
+    font-size: 48px; /* Grande taille pour le montant */
     font-weight: 700;
     margin: 0 0 20px 0;
     letter-spacing: -1px;
 }
 
 .account-button {
-    background: rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.2); /* Bouton Comptes transparent */
     border: none;
     border-radius: 20px;
     padding: 8px 20px;
@@ -183,11 +171,11 @@ body {
     background: rgba(255,255,255,0.3);
 }
 
-/* Actions rapides (Ajouter, Retirer, etc.) */
+/* Actions rapides (Ajouter, Retirer) */
 .quick-actions {
     display: flex;
-    justify-content: space-around;
-    gap: 15px;
+    justify-content: center; /* Centrer les deux boutons restants */
+    gap: 30px; /* Augmenter l'espace entre les boutons */
     margin-top: 20px;
 }
 
@@ -209,13 +197,13 @@ body {
     width: 50px;
     height: 50px;
     border-radius: 50%;
-    background: #1C1C1E;
+    background: #1C1C1E; /* Fond pour l'icône */
     display: flex;
     justify-content: center;
     align-items: center;
     font-size: 24px;
     font-weight: 600;
-    color: #8F7CF9;
+    color: #8F7CF9; /* Couleur d'accent pour les icônes */
     box-shadow: 0 2px 5px rgba(0,0,0,0.3);
 }
 .action-item p {
@@ -326,7 +314,7 @@ button:hover {
   transform: scale(1.02);
 }
 
-#expenseList button, #incomeList button, #stockList button, #accountList button {
+#expenseList button, #incomeList button, #accountList button {
     background: #444;
     color: #E0E0E0;
     font-weight: normal;
@@ -335,7 +323,7 @@ button:hover {
     border-radius: 6px;
     margin-left: 10px;
 }
-#expenseList button:hover, #incomeList button:hover, #stockList button:hover, #accountList button:hover {
+#expenseList button:hover, #incomeList button:hover, #accountList button:hover {
     background: #666;
     transform: none;
 }
@@ -350,7 +338,7 @@ canvas {
   width: 100%;
 }
 
-/* Modales (CORRIGÉ: position:fixed pour garantir l'affichage) */
+/* Modales */
 .modal {
     display: none;
     position: fixed; 
@@ -361,7 +349,6 @@ canvas {
     height: 100%;
     overflow: auto;
     background-color: rgba(0,0,0,0.8);
-    /* Utiliser flex pour centrer le contenu */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -398,8 +385,8 @@ canvas {
     text-align: center;
 }
 
-/* Sections pour Comptes et Actions */
-.accounts-section, #section-parametres { /* ACTIONS SUPPRIMÉES */
+/* Sections pour Comptes et Paramètres */
+.accounts-section, #section-parametres {
     background: #1C1C1E;
     border-radius: 18px;
     padding: 25px;
@@ -496,16 +483,14 @@ canvas {
     padding-bottom: 70px; 
   }
   
+  /* Header principal mobile (Simplifié) */
   .header-main {
-      flex-wrap: wrap; 
-      gap: 15px;
+      padding-top: 0;
+      padding-bottom: 10px;
   }
   .header-main .search-menu {
-      flex-grow: 1; 
-  }
-  .search-menu input {
-      flex-grow: 1;
-      width: auto; 
+      flex-grow: 0; /* Suppression de la barre de recherche */
+      display: flex; 
   }
   .user-info p {
     font-size: 14px;
@@ -519,19 +504,21 @@ canvas {
       font-size: 40px;
   }
 
+  /* Actions rapides mobile (Ajustement pour 2 boutons) */
   .quick-actions {
       gap: 10px;
-      flex-wrap: wrap; 
+      justify-content: space-around;
   }
   .action-item {
-      flex-basis: calc(25% - 10px); 
-      font-size: 11px;
-      gap: 5px;
+      flex-basis: calc(50% - 10px); /* 2 éléments par ligne */
+      font-size: 13px;
+      gap: 8px;
+      width: 100%;
   }
   .action-icon {
-      width: 45px;
-      height: 45px;
-      font-size: 20px;
+      width: 50px;
+      height: 50px;
+      font-size: 24px;
   }
 
   .modal-content {
@@ -544,9 +531,6 @@ canvas {
 
   .accounts-section, #section-parametres {
       padding: 20px;
-  }
-  .accounts-section h2, #section-parametres h2 {
-      font-size: 18px;
   }
   .card-list div {
       padding: 8px 12px;
