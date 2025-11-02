@@ -283,7 +283,7 @@ function getIcon(reason) {
         case 'sport': return '🏋️';
         // Général
         case 'autres':
-        default: return '❓'; // CORRIGÉ: Icône pour "Autres"
+        default: return '❓'; // CORRIGÉ: Icône pour "Autres" est un point d'interrogation
     }
 }
 
@@ -298,10 +298,12 @@ function getIconColor(reason, isExpense) {
         case 'prime':
         case 'anniversaire':
             return '#4CD964'; // Vert pour revenu
+        case 'autres':
+            return '#4CD964'; // Vert pour autres revenus
         case 'nourriture':
             return '#007AFF'; // Bleu pour nourriture si ce n'est pas une dépense
         default: 
-            return '#8F7CF9'; // Violet par défaut pour revenus
+            return '#8F7CF9'; // Violet par défaut pour autres revenus
     }
 }
 
