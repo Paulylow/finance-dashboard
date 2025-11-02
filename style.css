@@ -297,6 +297,8 @@ body {
 .transaction-details span {
     font-size: 12px;
     color: #B0B0B0;
+    /* CORRECTION: Autoriser les sauts de ligne pour éviter que [Livret A] ne dépasse */
+    word-break: break-word; 
 }
 
 /* Forcer le signe et le montant sur une seule ligne */
@@ -495,6 +497,8 @@ canvas {
     box-shadow: 0 -5px 15px rgba(0,0,0,0.7);
     border-top: 1px solid #333;
     z-index: 200; 
+    /* Désactiver le défilement dans la barre d'onglets pour éviter le bug de l'underline */
+    overflow-x: hidden; 
   }
 
   .sidebar h2 { display: none; }
@@ -534,7 +538,7 @@ canvas {
 
   .main {
     padding: 15px;
-    padding-bottom: 120px; /* CORRECTION: Augmenter le padding-bottom pour dégager le graphique */
+    padding-bottom: 120px; /* GARANTIT l'espace pour le graphique au-dessus du menu fixe */
   }
   
   .header-main {
