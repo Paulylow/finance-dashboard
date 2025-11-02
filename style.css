@@ -611,16 +611,3 @@ canvas {
       font-size: 15px;
   }
 }
-
-/* Cache les sections non affichées */
-.hidden {
-  display: none;
-}
-
-/* Style de l’onglet actif */
-.sidebar ul li.active,
-.bottom-nav li.active {
-  color: #00bcd4;
-  font-weight: bold;
-}
-
