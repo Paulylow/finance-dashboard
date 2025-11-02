@@ -162,10 +162,10 @@ document.getElementById('expenseForm').addEventListener('submit', (e) => {
       updateAccountSelects();
   }
 
-  updateCombinedTransactionList(); // Mise à jour de la liste combinée
+  updateCombinedTransactionList();
   updateChart();
   updateHistory();
-  e.target.reset();
+  e.target.reset(); // Réinitialise le formulaire après soumission
   modalWithdrawMoney.style.display = 'none'; // Ferme la modale
 });
 
@@ -199,13 +199,12 @@ document.getElementById('incomeForm').addEventListener('submit', (e) => {
       updateAccountSelects();
   }
   
-  updateCombinedTransactionList(); // Mise à jour de la liste combinée
+  updateCombinedTransactionList();
   updateChart();
   updateHistory();
-  e.target.reset();
+  e.target.reset(); // Réinitialise le formulaire après soumission
   modalAddMoney.style.display = 'none'; // Ferme la modale
 });
-
 
 // === NOUVEAU: Mettre à jour la liste des transactions combinées (Tableau de bord) ===
 function updateCombinedTransactionList() {
@@ -265,7 +264,7 @@ function deleteTransaction(type, id, amount, accountName) {
     }
     
     updateChart();
-    updateCombinedTransactionList(); // Mise à jour de la liste combinée
+    updateCombinedTransactionList();
     updateHistory();
 }
 
@@ -463,7 +462,6 @@ function updateHistory() {
     const list = document.getElementById('historyTransactionList');
     list.innerHTML = '';
 
-    // Trier pour l'historique par date/ID descendant (plus récent en haut)
     filteredTransactions.sort((a, b) => b.id - a.id).forEach(t => {
         const isExpense = expenses.some(e => e.id === t.id);
         const typeClass = isExpense ? 'expense' : 'income';
@@ -520,7 +518,6 @@ function showSection(target) {
     updateHistory(); 
   }
   
-  // S'assurer que le lien actif est coloré, y compris en mobile
   const activeLink = document.querySelector(`.sidebar li[data-target="${target}"]`);
   if(activeLink) {
       activeLink.classList.add('active');
@@ -541,7 +538,6 @@ function ensureModalsClosed() {
 }
 
 // === Initialisation de l'affichage au chargement ===
-// La fonction de mise à jour des transactions est maintenant unique
 updateCombinedTransactionList();
 showSection('tableau');
 updateAccountList();
