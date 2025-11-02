@@ -1,8 +1,6 @@
 // === Données initiales ===
-let accounts = JSON.parse(localStorage.getItem('accounts')) || [
-  { name: 'Compte Courant', balance: 10000 },
-  { name: 'Livret A', balance: 2450 }
-];
+// Comptes vides pour un démarrage "clean". Le solde total commence à 0.
+let accounts = JSON.parse(localStorage.getItem('accounts')) || [];
 
 // Le Solde Total DOIT être la somme des comptes.
 let totalBalance = accounts.reduce((sum, acc) => sum + acc.balance, 0); 
@@ -10,12 +8,11 @@ let totalBalance = accounts.reduce((sum, acc) => sum + acc.balance, 0);
 let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
 let incomes = JSON.parse(localStorage.getItem('incomes')) || [];
 
-document.getElementById('totalBalance').textContent = `€${totalBalance.toLocaleString('fr-FR')}`;
+document.getElementById('totalBalance').textContent = `€${totalBalance.toLocaleString('fr-FR', { minimumFractionDigits: 2 })}`;
 
 
 // === FONCTION UTILITAIRE : Gérer la Virgule et la Conversion en Nombre ===
 function parseAmount(input) {
-    // Remplace la virgule par un point et convertit en nombre
     const str = input.replace(',', '.');
     return parseFloat(str);
 }
@@ -25,11 +22,9 @@ function updateAccountSelects() {
     const expenseSelect = document.getElementById('expenseAccount');
     const incomeSelect = document.getElementById('incomeAccount');
     
-    // Conserver les options par défaut
     const defaultOptionExpense = `<option value="">Choisir un compte pour la dépense</option>`;
     const defaultOptionIncome = `<option value="">Choisir un compte pour le revenu</option>`;
     
-    // Générer les options pour chaque compte
     const accountOptions = accounts.map(acc => 
         `<option value="${acc.name}">${acc.name} (€${acc.balance.toLocaleString('fr-FR', { minimumFractionDigits: 2 })})</option>`
     ).join('');
@@ -40,11 +35,9 @@ function updateAccountSelects() {
 
 // === Graphique dynamique du solde (Ligne - Suivi Agrégé) ===
 const ctx = document.getElementById('balanceChart').getContext('2d');
-// Historique pour l'agrégation par jour/mois
 let balanceHistory = JSON.parse(localStorage.getItem('balanceHistory')) || [];
 
 function aggregateBalanceData() {
-    // Si l'historique est vide, ajouter le solde initial
     if (balanceHistory.length === 0) {
         balanceHistory.push({
             date: new Date().toLocaleDateString('fr-FR', { year: 'numeric', month: 'short', day: 'numeric' }),
@@ -55,18 +48,15 @@ function aggregateBalanceData() {
     const todayLabel = new Date().toLocaleDateString('fr-FR', { year: 'numeric', month: 'short', day: 'numeric' });
     const lastEntry = balanceHistory[balanceHistory.length - 1];
 
-    if (lastEntry.date === todayLabel) {
-        // Mettre à jour le solde d'aujourd'hui
+    if (lastEntry && lastEntry.date === todayLabel) {
         lastEntry.balance = totalBalance;
     } else {
-        // Nouveau jour : ajouter une nouvelle entrée
         balanceHistory.push({
             date: todayLabel,
             balance: totalBalance
         });
         
-        // Limiter l'historique (ex: 90 jours max)
-        if (balanceHistory.length > 90) {
+        if (balanceHistory.length > 90) { // Garder max 90 jours
             balanceHistory.shift();
         }
     }
@@ -88,7 +78,7 @@ const balanceChart = new Chart(ctx, {
     datasets: [{
       label: 'Solde (€)',
       data: aggregated.data,
-      borderColor: '#8f7cf9',
+      borderColor: '#8F7CF9',
       backgroundColor: 'rgba(143,124,249,0.2)',
       fill: true,
       tension: 0.3
@@ -96,7 +86,11 @@ const balanceChart = new Chart(ctx, {
   },
   options: {
     responsive: true,
-    scales: { y: { beginAtZero: false } }
+    scales: { 
+      y: { beginAtZero: false, grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#E0E0E0' } },
+      x: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#E0E0E0' } }
+    },
+    plugins: { legend: { labels: { color: '#E0E0E0' } } }
   }
 });
 
@@ -106,6 +100,40 @@ function updateChart() {
     balanceChart.data.datasets[0].data = updatedData.data;
     balanceChart.update();
 }
+
+
+// === GESTION DES MODALES ===
+const modalAddMoney = document.getElementById('modal-add-money');
+const modalWithdrawMoney = document.getElementById('modal-withdraw-money');
+const closeButtons = document.querySelectorAll('.close-button');
+
+document.querySelectorAll('.action-item').forEach(item => {
+    item.addEventListener('click', (e) => {
+        const action = e.currentTarget.dataset.action;
+        if (action === 'add-money') {
+            modalAddMoney.style.display = 'flex';
+        } else if (action === 'withdraw-money') {
+            modalWithdrawMoney.style.display = 'flex';
+        }
+        // Pour les autres actions (info, more), vous pouvez ajouter des modales similaires ou d'autres logiques
+    });
+});
+
+closeButtons.forEach(button => {
+    button.addEventListener('click', () => {
+        modalAddMoney.style.display = 'none';
+        modalWithdrawMoney.style.display = 'none';
+    });
+});
+
+window.addEventListener('click', (event) => {
+    if (event.target == modalAddMoney) {
+        modalAddMoney.style.display = 'none';
+    }
+    if (event.target == modalWithdrawMoney) {
+        modalWithdrawMoney.style.display = 'none';
+    }
+});
 
 
 // === DÉPENSES (Le compte est maintenant affecté) ===
@@ -123,18 +151,15 @@ document.getElementById('expenseForm').addEventListener('submit', (e) => {
       return;
   }
   
-  // 1. Enregistrer la transaction
-  const expense = { id: Date.now(), account: selectedAccountName, amount, reason, date: new Date().toLocaleDateString() };
+  const expense = { id: Date.now(), account: selectedAccountName, amount, reason, date: new Date().toLocaleDateString(), time: new Date().toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'}) };
   expenses.push(expense);
   localStorage.setItem('expenses', JSON.stringify(expenses));
   
-  // 2. Mettre à jour le solde du compte affecté
   const accountIndex = accounts.findIndex(acc => acc.name === selectedAccountName);
   if (accountIndex !== -1) {
       accounts[accountIndex].balance -= amount;
       localStorage.setItem('accounts', JSON.stringify(accounts));
       
-      // Mettre à jour tous les affichages
       updateAccountChart();
       updateAccountList();
       updateAccountSelects();
@@ -143,26 +168,32 @@ document.getElementById('expenseForm').addEventListener('submit', (e) => {
   updateExpenseList();
   updateChart();
   e.target.reset();
+  modalWithdrawMoney.style.display = 'none'; // Ferme la modale
 });
 
 function updateExpenseList() {
   const list = document.getElementById('expenseList');
   list.innerHTML = '';
-  expenses.slice().reverse().forEach((exp) => {
-    // Afficher le compte affecté
+  // Afficher les 5 dernières dépenses
+  expenses.slice().reverse().slice(0, 5).forEach((exp) => {
     const li = document.createElement('li');
-    li.innerHTML = `<span>${exp.date} - [${exp.account}] ${exp.reason}</span><span style="color:#ff5f6d">-€${exp.amount.toFixed(2)}</span>`;
+    li.innerHTML = `
+        <div class="transaction-icon" style="background:${getIconColor(exp.reason)};">${getIcon(exp.reason)}</div>
+        <div class="transaction-details">
+            <strong>${exp.reason}</strong>
+            <span>${exp.time} - ${exp.date} [${exp.account}]</span>
+        </div>
+        <span class="transaction-amount expense">-€${exp.amount.toFixed(2)}</span>
+    `;
     
     const deleteBtn = document.createElement('button');
     deleteBtn.textContent = 'X';
     deleteBtn.onclick = () => deleteTransaction('expense', exp.id, exp.amount, exp.account); 
-    deleteBtn.style.cssText = 'background: #ff5f6d; color: white; border: none; padding: 5px 8px; margin-left: 10px; cursor: pointer; border-radius: 5px; font-weight: normal; transform: none;';
-
     li.appendChild(deleteBtn);
     list.appendChild(li);
   });
   const totalExpenses = expenses.reduce((acc, e) => acc + e.amount, 0);
-  document.getElementById('expenses').textContent = `€${totalExpenses.toLocaleString('fr-FR')}`;
+  // document.getElementById('expenses').textContent = `€${totalExpenses.toLocaleString('fr-FR')}`; // Supprimé du dashboard principal
 }
 
 // === REVENUS (Le compte est maintenant affecté) ===
@@ -180,18 +211,15 @@ document.getElementById('incomeForm').addEventListener('submit', (e) => {
       return;
   }
   
-  // 1. Enregistrer la transaction
-  const income = { id: Date.now(), account: selectedAccountName, amount, reason, date: new Date().toLocaleDateString() };
+  const income = { id: Date.now(), account: selectedAccountName, amount, reason, date: new Date().toLocaleDateString(), time: new Date().toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'}) };
   incomes.push(income);
   localStorage.setItem('incomes', JSON.stringify(incomes));
   
-  // 2. Mettre à jour le solde du compte affecté
   const accountIndex = accounts.findIndex(acc => acc.name === selectedAccountName);
   if (accountIndex !== -1) {
       accounts[accountIndex].balance += amount;
       localStorage.setItem('accounts', JSON.stringify(accounts));
       
-      // Mettre à jour tous les affichages
       updateAccountChart();
       updateAccountList();
       updateAccountSelects();
@@ -200,45 +228,48 @@ document.getElementById('incomeForm').addEventListener('submit', (e) => {
   updateIncomeList();
   updateChart();
   e.target.reset();
+  modalAddMoney.style.display = 'none'; // Ferme la modale
 });
 
 function updateIncomeList() {
   const list = document.getElementById('incomeList');
   list.innerHTML = '';
-  incomes.slice().reverse().forEach((inc) => {
-    // Afficher le compte affecté
+  // Afficher les 5 derniers revenus
+  incomes.slice().reverse().slice(0, 5).forEach((inc) => {
     const li = document.createElement('li');
-    li.innerHTML = `<span>${inc.date} - [${inc.account}] ${inc.reason}</span><span style="color:#4cd964">+€${inc.amount.toFixed(2)}</span>`;
+    li.innerHTML = `
+        <div class="transaction-icon" style="background:${getIconColor(inc.reason)};">${getIcon(inc.reason)}</div>
+        <div class="transaction-details">
+            <strong>${inc.reason}</strong>
+            <span>${inc.time} - ${inc.date} [${inc.account}]</span>
+        </div>
+        <span class="transaction-amount income">+€${inc.amount.toFixed(2)}</span>
+    `;
     
     const deleteBtn = document.createElement('button');
     deleteBtn.textContent = 'X';
     deleteBtn.onclick = () => deleteTransaction('income', inc.id, inc.amount, inc.account); 
-    deleteBtn.style.cssText = 'background: #4cd964; color: white; border: none; padding: 5px 8px; margin-left: 10px; cursor: pointer; border-radius: 5px; font-weight: normal; transform: none;';
-
     li.appendChild(deleteBtn);
     list.appendChild(li);
   });
   const totalIncome = incomes.reduce((acc, e) => acc + e.amount, 0);
-  document.getElementById('income').textContent = `€${totalIncome.toLocaleString('fr-FR')}`;
+  // document.getElementById('income').textContent = `€${totalIncome.toLocaleString('fr-FR')}`; // Supprimé du dashboard principal
 }
 
 // === FONCTION GÉNÉRIQUE DE SUPPRESSION DE TRANSACTION (Ajuste le compte impacté) ===
 function deleteTransaction(type, id, amount, accountName) {
     const accountIndex = accounts.findIndex(acc => acc.name === accountName);
-    const multiplier = (type === 'expense') ? 1 : -1; // +1 pour dépense (remboursement), -1 pour revenu (annulation)
+    const multiplier = (type === 'expense') ? 1 : -1; 
     
     if (accountIndex !== -1) {
-        // 1. Ajuster le solde du compte
         accounts[accountIndex].balance += amount * multiplier; 
         localStorage.setItem('accounts', JSON.stringify(accounts));
 
-        // 2. Mettre à jour les affichages (Total, Camembert, Selecteurs)
         updateAccountChart();
         updateAccountList();
         updateAccountSelects();
     }
     
-    // 3. Supprimer la transaction de la liste
     if (type === 'expense') {
         expenses = expenses.filter(exp => exp.id !== id); 
         localStorage.setItem('expenses', JSON.stringify(expenses));
@@ -252,6 +283,28 @@ function deleteTransaction(type, id, amount, accountName) {
     updateChart();
 }
 
+// === Fonctions pour les icônes de transaction (pour le style Revolut) ===
+function getIcon(reason) {
+    const lowerReason = reason.toLowerCase();
+    if (lowerReason.includes('salaire')) return '💸';
+    if (lowerReason.includes('essence') || lowerReason.includes('carburant')) return '⛽';
+    if (lowerReason.includes('restaurant') || lowerReason.includes('repas')) return '🍽️';
+    if (lowerReason.includes('courses')) return '🛒';
+    if (lowerReason.includes('internet') || lowerReason.includes('netflix')) return '🌐';
+    if (lowerReason.includes('sport')) return '🏋️';
+    if (lowerReason.includes('loyer')) return '🏠';
+    return '📝'; // Icône par défaut
+}
+
+function getIconColor(reason) {
+    const lowerReason = reason.toLowerCase();
+    if (lowerReason.includes('salaire')) return '#4CD964'; // Vert
+    if (lowerReason.includes('loyer')) return '#FF9500'; // Orange
+    if (lowerReason.includes('courses')) return '#007AFF'; // Bleu
+    if (lowerReason.includes('sport')) return '#FF2D55'; // Rouge
+    return '#8F7CF9'; // Violet par défaut
+}
+
 
 // === GESTION DES COMPTES (PIE CHART) ===
 const accountCtx = document.getElementById('accountChart').getContext('2d');
@@ -261,13 +314,15 @@ let accountChart = new Chart(accountCtx, {
     labels: [],
     datasets: [{
       data: [],
-      backgroundColor: ['#667eea', '#764ba2', '#8f7cf9', '#5a49e2', '#4cd964', '#ff5f6d'],
+      backgroundColor: ['#5A49E2', '#8F7CF9', '#667EEA', '#764BA2', '#4CD964', '#FF5F6D', '#FF9500'],
+      borderColor: '#1C1C1E', 
+      borderWidth: 2
     }]
   },
   options: {
     responsive: true,
     plugins: {
-      legend: { position: 'top', labels: { color: 'white' } }
+      legend: { position: 'right', labels: { color: '#E0E0E0', boxWidth: 15 } }
     }
   }
 });
@@ -275,8 +330,6 @@ let accountChart = new Chart(accountCtx, {
 document.getElementById('addAccountForm').addEventListener('submit', (e) => {
   e.preventDefault();
   const name = document.getElementById('accountName').value.trim();
-  
-  // Utiliser parseAmount pour le solde initial
   const balanceInput = document.getElementById('accountBalance').value.trim();
   const balance = parseAmount(balanceInput);
   
@@ -290,7 +343,7 @@ document.getElementById('addAccountForm').addEventListener('submit', (e) => {
     localStorage.setItem('accounts', JSON.stringify(accounts));
     updateAccountList();
     updateAccountChart(); 
-    updateAccountSelects(); // Mis à jour
+    updateAccountSelects(); 
     e.target.reset();
   }
 });
@@ -300,21 +353,23 @@ function deleteAccount(accountName) {
   localStorage.setItem('accounts', JSON.stringify(accounts));
   updateAccountList();
   updateAccountChart();
-  updateAccountSelects(); // Mis à jour
+  updateAccountSelects(); 
 }
 
 function updateAccountList() {
   const list = document.getElementById('accountList');
   list.innerHTML = '';
+  if (accounts.length === 0) {
+      list.innerHTML = '<p style="text-align:center; color:#B0B0B0;">Aucun compte ajouté.</p>';
+  }
   accounts.forEach((acc) => {
     const div = document.createElement('div');
     
     const deleteBtn = document.createElement('button');
     deleteBtn.textContent = 'X';
     deleteBtn.onclick = () => deleteAccount(acc.name);
-    deleteBtn.style.cssText = 'background: #ff5f6d; color: white; border: none; padding: 5px 8px; margin-left: 10px; cursor: pointer; border-radius: 5px; font-weight: normal; transform: none;';
     
-    div.innerHTML = `<strong>${acc.name}</strong> : €${acc.balance.toLocaleString('fr-FR', { minimumFractionDigits: 2 })}`;
+    div.innerHTML = `<span><strong>${acc.name}</strong></span> : <span>€${acc.balance.toLocaleString('fr-FR', { minimumFractionDigits: 2 })}</span>`;
     div.appendChild(deleteBtn);
     list.appendChild(div);
   });
@@ -326,13 +381,13 @@ function updateAccountChart() {
   accountChart.update();
   
   totalBalance = accounts.reduce((sum, acc) => sum + acc.balance, 0);
-  document.getElementById('totalBalance').textContent = `€${totalBalance.toLocaleString('fr-FR')}`;
+  document.getElementById('totalBalance').textContent = `€${totalBalance.toLocaleString('fr-FR', { minimumFractionDigits: 2 })}`;
   
   updateChart(); 
 }
 
 
-// === ACTIONS (Yahoo Finance) ===
+// === ACTIONS (Yahoo Finance) (Solution de Contingence) ===
 const stockList = document.getElementById('stockList');
 const refreshButton = document.getElementById('refreshStocks');
 const addStockForm = document.getElementById('addStockForm');
@@ -348,53 +403,74 @@ if (!localStorage.getItem('myStocks')) {
 }
 
 async function fetchStocks() {
-  stockList.innerHTML = 'Chargement...';
-  try {
-    const symbols = myStocks.map(s => s.symbol).join(',');
-    if (!symbols) {
-        stockList.innerHTML = 'Aucune action à afficher.';
-        return;
-    }
-    
-    // Utilisation de la version v8 de l'API pour une meilleure fiabilité
-    const url = `https://query1.finance.yahoo.com/v8/finance/quote?symbols=${symbols}`;
-    
-    const res = await fetch(url);
-    if (!res.ok) {
-        throw new Error(`Erreur HTTP: ${res.status}`);
-    }
-    const data = await res.json();
-    
-    if (!data.quoteResponse || !data.quoteResponse.result) {
-        throw new Error('Réponse API invalide.');
-    }
-    
-    stockList.innerHTML = '';
-    
-    data.quoteResponse.result.forEach((stock) => {
-      const div = document.createElement('div');
-      const change = stock.regularMarketChangePercent || 0;
-      const color = change >= 0 ? '#4cd964' : '#ff5f6d';
-      
-      const deleteButton = document.createElement('button');
-      deleteButton.textContent = 'X';
-      deleteButton.onclick = () => deleteStock(stock.symbol);
-      deleteButton.style.cssText = 'background: #ff5f6d; color: white; border: none; padding: 5px 8px; margin-left: 10px; cursor: pointer; border-radius: 5px; font-weight: normal; transform: none;';
-
-      div.innerHTML = `
-        <span>
-          <strong>${stock.shortName || stock.symbol}</strong> (${stock.symbol})
-          — €${stock.regularMarketPrice?.toFixed(2) || 'N/A'}
-          <span style="color:${color}">(${change?.toFixed(2) || 0}%)</span>
-        </span>
-      `;
-      div.appendChild(deleteButton);
-      stockList.appendChild(div);
-    });
-  } catch (err) {
-    stockList.innerHTML = 'Erreur lors du chargement des actions.';
-    console.error('Erreur API des actions:', err);
+  stockList.innerHTML = '<p style="text-align:center; color:#B0B0B0;">Chargement des actions...</p>';
+  
+  const symbols = myStocks.map(s => s.symbol).join(',');
+  if (!symbols) {
+      stockList.innerHTML = '<p style="text-align:center; color:#B0B0B0;">Aucune action à afficher. Ajoutez-en une !</p>';
+      return;
   }
+  
+  // Liste des URLs à essayer
+  const urlsToTry = [
+    `https://query1.finance.yahoo.com/v8/finance/quote?symbols=${symbols}`,
+    `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${symbols}`
+  ];
+  
+  let success = false;
+  let finalData = null;
+
+  for (const url of urlsToTry) {
+      try {
+          console.log(`Tentative de connexion à l'API: ${url}`);
+          const res = await fetch(url);
+          if (!res.ok) {
+              console.warn(`L'URL ${url} a renvoyé une erreur HTTP: ${res.status}`);
+              continue; 
+          }
+          const data = await res.json();
+          
+          if (data.quoteResponse && data.quoteResponse.result && data.quoteResponse.result.length > 0) {
+              finalData = data;
+              success = true;
+              console.log('Connexion API réussie.');
+              break; 
+          } else {
+              console.warn(`L'URL ${url} a renvoyé une réponse vide ou invalide.`);
+          }
+      } catch (err) {
+          console.error(`Erreur de connexion pour ${url}:`, err);
+      }
+  }
+
+  if (!success || !finalData) {
+      stockList.innerHTML = '<p style="text-align:center; color:#FF5F6D;">Erreur lors du chargement des actions. (API non accessible)</p>';
+      return;
+  }
+
+  // --- RENDU EN CAS DE SUCCÈS ---
+  stockList.innerHTML = '';
+  
+  finalData.quoteResponse.result.forEach((stock) => {
+    const div = document.createElement('div');
+    const change = stock.regularMarketChangePercent || 0;
+    const color = change >= 0 ? '#4CD964' : '#FF5F6D';
+    
+    const deleteButton = document.createElement('button');
+    deleteButton.textContent = 'X';
+    deleteButton.onclick = () => deleteStock(stock.symbol);
+    
+
+    div.innerHTML = `
+      <span>
+        <strong>${stock.shortName || stock.symbol}</strong> (${stock.symbol})
+        — €${stock.regularMarketPrice?.toFixed(2) || 'N/A'}
+        <span style="color:${color}">(${change?.toFixed(2) || 0}%)</span>
+      </span>
+    `;
+    div.appendChild(deleteButton);
+    stockList.appendChild(div);
+  });
 }
 
 addStockForm.addEventListener('submit', (e) => {
@@ -427,22 +503,21 @@ refreshButton.addEventListener('click', fetchStocks);
 const navLinks = document.querySelectorAll('.sidebar li');
 
 function showSection(target) {
-  document.querySelectorAll('.main > section, .main > .chart-section').forEach(el => {
+  document.querySelectorAll('.main > section').forEach(el => {
     el.style.display = 'none';
   });
+  document.querySelectorAll('.sidebar li').forEach(li => li.classList.remove('active'));
 
   if (target === 'tableau') {
     document.getElementById('section-tableau').style.display = 'flex'; 
-    document.getElementById('balanceChart').style.display = 'block';
-    document.getElementById('section-transactions').style.display = 'flex';
   } else if (target === 'comptes') {
     document.getElementById('section-comptes').style.display = 'block';
-    document.getElementById('accountChart').style.display = 'block';
   } else if (target === 'actions') {
     document.getElementById('section-actions').style.display = 'block';
   } else if (target === 'parametres') {
     document.getElementById('section-parametres').style.display = 'block';
   }
+  document.querySelector(`.sidebar li[data-target="${target}"]`).classList.add('active');
 }
 
 navLinks.forEach(link => {
@@ -451,7 +526,6 @@ navLinks.forEach(link => {
     showSection(target);
   });
 });
-
 
 // === Initialisation de l'affichage au chargement ===
 showSection('tableau');
