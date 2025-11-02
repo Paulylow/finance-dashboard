@@ -11,7 +11,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="FinanceApp">
-  <link rel="apple-touch-icon" href="icon-192x192.png"> <meta name="theme-color" content="#121212">
+  <link rel="apple-touch-icon" href="icon-192x192.png"> 
+  <meta name="theme-color" content="#121212">
 </head>
 <body>
   <div class="sidebar">
@@ -41,7 +42,7 @@
 
       <div class="balance-card">
         <p class="balance-label">Solde Total</p>
-        <p class="balance-amount" id="totalBalance">€12 450,00</p>
+        <p class="balance-amount" id="totalBalance">€0,00</p>
         <button class="account-button">Comptes</button>
       </div>
 
@@ -112,6 +113,7 @@
       <form id="addStockForm">
         <input type="text" id="stockSymbol" placeholder="Symbole (ex: AAPL)" required />
         <input type="text" id="stockName" placeholder="Nom (ex: Apple)" required />
+        <input type="number" id="stockShares" placeholder="Quantité (ex: 10)" required />
         <button type="submit">Ajouter Action</button>
       </form>
       <div id="stockList" class="card-list"></div>
