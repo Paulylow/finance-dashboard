@@ -561,3 +561,30 @@ updateAccountList();
 updateAccountChart();
 updateAccountSelects();
 ensureModalsClosed();
+
+// === Gestion de la navigation entre les onglets ===
+
+// Sélectionne les éléments du menu (barre du bas ou latérale)
+const navItems = document.querySelectorAll('.sidebar ul li, .bottom-nav li');
+const sections = document.querySelectorAll('section');
+
+navItems.forEach(item => {
+  item.addEventListener('click', () => {
+    // Récupère la section cible à afficher
+    const target = item.getAttribute('data-target');
+
+    // Cache toutes les sections
+    sections.forEach(sec => sec.classList.add('hidden'));
+
+    // Affiche seulement la section correspondante
+    const targetSection = document.getElementById(target);
+    if (targetSection) {
+      targetSection.classList.remove('hidden');
+    }
+
+    // Met à jour l’onglet actif visuellement
+    navItems.forEach(i => i.classList.remove('active'));
+    item.classList.add('active');
+  });
+});
+
