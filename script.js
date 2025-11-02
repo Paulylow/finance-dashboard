@@ -518,7 +518,7 @@ function showSection(target) {
   });
   document.querySelectorAll('.sidebar li').forEach(li => li.classList.remove('active'));
 
-  // 2. Afficher la section ciblée avec le bon display mode
+  // 2. Afficher la section ciblée avec le bon display mode (CORRIGÉ)
   const targetElement = document.getElementById(`section-${target}`);
   if (targetElement) {
       // Tableau de bord utilise flex pour l'organisation; les autres utilisent block.
