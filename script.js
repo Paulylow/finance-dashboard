@@ -139,7 +139,7 @@ document.getElementById('expenseForm').addEventListener('submit', (e) => {
   
   const selectedAccountName = document.getElementById('expenseAccount').value;
   const amountInput = document.getElementById('amount').value.trim();
-  const reason = document.getElementById('reason').value.trim();
+  const reason = document.getElementById('reason').value; // Récupère la valeur du sélecteur
   
   const amount = parseAmount(amountInput);
 
@@ -148,7 +148,7 @@ document.getElementById('expenseForm').addEventListener('submit', (e) => {
       return;
   }
   
-  const expense = { id: Date.now(), account: selectedAccountName, amount, reason, date: new Date().toLocaleDateString(), time: new Date().toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'}) };
+  const expense = { id: Date.now(), account: selectedAccountName, reason, amount, date: new Date().toLocaleDateString(), time: new Date().toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'}) };
   expenses.push(expense);
   localStorage.setItem('expenses', JSON.stringify(expenses));
   
@@ -164,6 +164,7 @@ document.getElementById('expenseForm').addEventListener('submit', (e) => {
 
   updateExpenseList();
   updateChart();
+  updateHistory();
   e.target.reset();
   modalWithdrawMoney.style.display = 'none'; // Ferme la modale
 });
@@ -197,7 +198,7 @@ document.getElementById('incomeForm').addEventListener('submit', (e) => {
   
   const selectedAccountName = document.getElementById('incomeAccount').value;
   const amountInput = document.getElementById('incomeAmount').value.trim();
-  const reason = document.getElementById('incomeReason').value.trim();
+  const reason = document.getElementById('incomeReason').value; // Récupère la valeur du sélecteur
   
   const amount = parseAmount(amountInput);
   
@@ -206,7 +207,7 @@ document.getElementById('incomeForm').addEventListener('submit', (e) => {
       return;
   }
   
-  const income = { id: Date.now(), account: selectedAccountName, amount, reason, date: new Date().toLocaleDateString(), time: new Date().toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'}) };
+  const income = { id: Date.now(), account: selectedAccountName, reason, amount, date: new Date().toLocaleDateString(), time: new Date().toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'}) };
   incomes.push(income);
   localStorage.setItem('incomes', JSON.stringify(incomes));
   
@@ -222,6 +223,7 @@ document.getElementById('incomeForm').addEventListener('submit', (e) => {
   
   updateIncomeList();
   updateChart();
+  updateHistory();
   e.target.reset();
   modalAddMoney.style.display = 'none'; // Ferme la modale
 });
@@ -274,29 +276,44 @@ function deleteTransaction(type, id, amount, accountName) {
     }
     
     updateChart();
+    updateHistory();
 }
 
 // === Fonctions pour les icônes de transaction (pour le style Revolut) ===
 function getIcon(reason) {
-    const lowerReason = reason.toLowerCase();
-    if (lowerReason.includes('salaire') || lowerReason.includes('revenu')) return '💸';
-    if (lowerReason.includes('essence') || lowerReason.includes('carburant')) return '⛽';
-    if (lowerReason.includes('restaurant') || lowerReason.includes('repas')) return '🍽️';
-    if (lowerReason.includes('courses')) return '🛒';
-    if (lowerReason.includes('internet') || lowerReason.includes('netflix') || lowerReason.includes('abonnement')) return '🌐';
-    if (lowerReason.includes('sport')) return '🏋️';
-    if (lowerReason.includes('loyer')) return '🏠';
-    if (lowerReason.includes('action') || lowerReason.includes('bourse')) return '📈';
-    return '📝'; // Icône par défaut
+    switch (reason.toLowerCase()) {
+        // Revenus (doit correspondre aux options du sélecteur)
+        case 'salaire': return '💰';
+        case 'anniversaire': return '🎁';
+        case 'prime': return '🌟';
+        // Dépenses (doit correspondre aux options du sélecteur)
+        case 'voiture': return '🚗';
+        case 'nourriture': return '🍔';
+        case 'transport': return '🚌';
+        case 'téléphone': return '📱';
+        case 'sport': return '🏋️';
+        // Général
+        case 'autres':
+        default: return '📝';
+    }
 }
 
 function getIconColor(reason) {
-    const lowerReason = reason.toLowerCase();
-    if (lowerReason.includes('salaire') || lowerReason.includes('revenu')) return '#4CD964'; // Vert
-    if (lowerReason.includes('loyer')) return '#FF9500'; // Orange
-    if (lowerReason.includes('courses')) return '#007AFF'; // Bleu
-    if (lowerReason.includes('sport')) return '#FF2D55'; // Rouge
-    return '#8F7CF9'; // Violet par défaut
+    switch (reason.toLowerCase()) {
+        case 'salaire':
+        case 'prime':
+        case 'anniversaire':
+            return '#4CD964'; // Vert pour revenu
+        case 'voiture':
+        case 'transport':
+        case 'téléphone':
+        case 'sport':
+            return '#FF5F6D'; // Rouge pour dépense
+        case 'nourriture':
+            return '#007AFF'; // Bleu
+        default: 
+            return '#8F7CF9'; // Violet par défaut
+    }
 }
 
 
@@ -381,6 +398,115 @@ function updateAccountChart() {
 }
 
 
+// === GESTION DE L'HISTORIQUE MENSUEL ===
+const monthSelector = document.getElementById('monthSelector');
+
+function getUniqueMonths() {
+    const allTransactions = [...expenses, ...incomes];
+    const uniqueMonths = new Set();
+    
+    allTransactions.forEach(t => {
+        const dateParts = t.date.split('/');
+        // Assumer le format DD/MM/AAAA. Mois est l'index 1.
+        if (dateParts.length >= 2) {
+            uniqueMonths.add(`${dateParts[1]}/${dateParts[2]}`);
+        }
+    });
+
+    const today = new Date();
+    const currentMonthKey = `${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`;
+    
+    if (!uniqueMonths.has(currentMonthKey)) {
+         uniqueMonths.add(currentMonthKey);
+    }
+    
+    // Convertir en tableau et trier (le plus récent en premier)
+    const sortedMonths = Array.from(uniqueMonths).sort((a, b) => {
+        const [mA, yA] = a.split('/').map(Number);
+        const [mB, yB] = b.split('/').map(Number);
+        if (yA !== yB) return yB - yA;
+        return mB - mA;
+    });
+
+    return sortedMonths;
+}
+
+function renderMonthSelector() {
+    const uniqueMonths = getUniqueMonths();
+    monthSelector.innerHTML = '';
+    
+    uniqueMonths.forEach(key => {
+        const [month, year] = key.split('/');
+        const monthName = new Date(year, month - 1, 1).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+        const option = document.createElement('option');
+        option.value = key;
+        option.textContent = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+        monthSelector.appendChild(option);
+    });
+
+    // Sélectionner le mois en cours par défaut
+    const today = new Date();
+    const currentMonthKey = `${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`;
+    monthSelector.value = currentMonthKey;
+}
+
+function updateHistory() {
+    renderMonthSelector();
+    
+    const selectedMonthKey = monthSelector.value;
+    if (!selectedMonthKey) return;
+    
+    const [selectedMonth, selectedYear] = selectedMonthKey.split('/');
+
+    const allTransactions = [...expenses, ...incomes].sort((a, b) => b.id - a.id); // Trier par date/ID descendant
+    
+    const filteredTransactions = allTransactions.filter(t => {
+        const dateParts = t.date.split('/');
+        if (dateParts.length >= 2) {
+            const transactionMonth = dateParts[1];
+            const transactionYear = dateParts[2];
+            return transactionMonth === selectedMonth && transactionYear === selectedYear;
+        }
+        return false;
+    });
+    
+    let totalExpenses = 0;
+    let totalIncomes = 0;
+    
+    const list = document.getElementById('historyTransactionList');
+    list.innerHTML = '';
+
+    filteredTransactions.forEach(t => {
+        const isExpense = expenses.some(e => e.id === t.id); // Utiliser .some pour vérifier l'ID
+        const typeClass = isExpense ? 'expense' : 'income';
+        
+        if (isExpense) {
+            totalExpenses += t.amount;
+        } else {
+            totalIncomes += t.amount;
+        }
+        
+        const li = document.createElement('li');
+        li.innerHTML = `
+            <div class="transaction-icon" style="background:${getIconColor(t.reason)};">${getIcon(t.reason)}</div>
+            <div class="transaction-details">
+                <strong>${t.reason}</strong>
+                <span>${t.time} - ${t.date} [${t.account}]</span>
+            </div>
+            <span class="transaction-amount ${typeClass}">
+                ${isExpense ? '-€' : '+€'}${t.amount.toFixed(2)}
+            </span>
+        `;
+        list.appendChild(li);
+    });
+    
+    document.getElementById('historyTotalExpenses').textContent = `€${totalExpenses.toLocaleString('fr-FR', { minimumFractionDigits: 2 })}`;
+    document.getElementById('historyTotalIncomes').textContent = `€${totalIncomes.toLocaleString('fr-FR', { minimumFractionDigits: 2 })}`;
+}
+
+monthSelector.addEventListener('change', updateHistory);
+
+
 // === ACTIONS (SUPPRIMÉES) ===
 let myStocks = [];
 function fetchStocks() { 
@@ -401,6 +527,9 @@ function showSection(target) {
     document.getElementById('section-tableau').style.display = 'flex'; 
   } else if (target === 'comptes') {
     document.getElementById('section-comptes').style.display = 'block';
+  } else if (target === 'historique') {
+    document.getElementById('section-historique').style.display = 'block';
+    updateHistory(); 
   } else if (target === 'parametres') {
     document.getElementById('section-parametres').style.display = 'block';
   }
