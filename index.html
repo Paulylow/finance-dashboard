@@ -21,8 +21,7 @@
       <li data-target="tableau">Tableau de bord</li>
       <li data-target="comptes">Comptes</li>
       <li data-target="historique">Archives</li>
-      <li data-target="parametres">Paramètres</li>
-    </ul>
+      </ul>
   </div>
 
   <div class="main">
@@ -59,8 +58,7 @@
       
 <div class="transactions-summary">
         <h2>Transactions récentes</h2>
-        <ul id="expenseList" class="transaction-list"></ul>
-        <ul id="incomeList" class="transaction-list"></ul>
+        <ul id="combinedTransactionList" class="transaction-list"></ul>
       </div>
 
       <canvas id="balanceChart" class="chart-section"></canvas>
@@ -143,14 +141,7 @@
       <canvas id="accountChart" class="chart-section"></canvas>
     </section>
     
-    
-<section id="section-parametres" style="display:none; padding:20px;">
-      <h2>⚙️ Paramètres</h2>
-      <p>Ici, vous pourriez ajouter des options de réinitialisation des données ou de configuration de l'API.</p>
-      <button onclick="localStorage.clear(); location.reload();" style="background:red;">🚨 Réinitialiser toutes les données</button>
-    </section>
-
-  </div>
+    </div>
 
   <script src="script.js"></script>
 </body>
