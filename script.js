@@ -283,27 +283,27 @@ function getIcon(reason) {
         case 'sport': return '🏋️';
         // Général
         case 'autres':
-        default: return '❓'; // CORRIGÉ: Icône pour "Autres" est un point d'interrogation
+        default: return '❓'; // CORRIGÉ: Icône pour "Autres"
     }
 }
 
-// CORRIGÉ: Détermine la couleur de fond de l'icône
+// CORRIGÉ: Détermine la couleur de fond de l'icône, spécifiquement pour les revenus/dépenses "Autres"
 function getIconColor(reason, isExpense) {
+    
     if (isExpense) {
-        return '#FF5F6D'; // Rouge pour toutes les dépenses
+        return '#FF5F6D'; // Rouge pour toutes les dépenses, y compris "Autres"
     }
     
     switch (reason.toLowerCase()) {
         case 'salaire':
         case 'prime':
         case 'anniversaire':
-            return '#4CD964'; // Vert pour revenu
-        case 'autres':
-            return '#4CD964'; // Vert pour autres revenus
+        case 'autres': // CORRIGÉ: "Autres" est maintenant vert si c'est un revenu
+            return '#4CD964'; // Vert pour revenus
         case 'nourriture':
-            return '#007AFF'; // Bleu pour nourriture si ce n'est pas une dépense
+            return '#007AFF'; // Bleu
         default: 
-            return '#8F7CF9'; // Violet par défaut pour autres revenus
+            return '#8F7CF9'; // Violet par défaut
     }
 }
 
