@@ -100,7 +100,7 @@ function updateChart() {
 }
 
 
-// === GESTION DES MODALES (CORRIGÉ: Affichage des modales) ===
+// === GESTION DES MODALES ===
 const modalAddMoney = document.getElementById('modal-add-money');
 const modalWithdrawMoney = document.getElementById('modal-withdraw-money');
 const closeButtons = document.querySelectorAll('.close-button');
@@ -414,6 +414,12 @@ navLinks.forEach(link => {
   });
 });
 
+// NOUVEAU: Fonction pour forcer la fermeture des modales au démarrage
+function ensureModalsClosed() {
+    document.getElementById('modal-add-money').style.display = 'none';
+    document.getElementById('modal-withdraw-money').style.display = 'none';
+}
+
 // === Initialisation de l'affichage au chargement ===
 showSection('tableau');
 updateExpenseList();
@@ -421,4 +427,4 @@ updateIncomeList();
 updateAccountList();
 updateAccountChart();
 updateAccountSelects();
-// fetchStocks() n'est plus appelée
+ensureModalsClosed(); // Appel de la fonction de fermeture pour purger l'écran au démarrage
