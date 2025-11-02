@@ -100,7 +100,7 @@ function updateChart() {
 }
 
 
-// === GESTION DES MODALES ===
+// === GESTION DES MODALES (CORRIGÉ: Ajout du focus pour le clavier) ===
 const modalAddMoney = document.getElementById('modal-add-money');
 const modalWithdrawMoney = document.getElementById('modal-withdraw-money');
 const closeButtons = document.querySelectorAll('.close-button');
@@ -110,13 +110,13 @@ document.querySelectorAll('.action-item').forEach(item => {
         const action = e.currentTarget.dataset.action;
         if (action === 'add-money') {
             modalAddMoney.style.display = 'flex';
-            // Utiliser setTimeout pour forcer le focus (CORRIGÉ: Clavier iOS)
+            // Utiliser setTimeout pour forcer le focus (CORRIGÉ)
             setTimeout(() => {
                 document.getElementById('incomeAmount').focus(); 
             }, 0); 
         } else if (action === 'withdraw-money') {
             modalWithdrawMoney.style.display = 'flex';
-            // Utiliser setTimeout pour forcer le focus (CORRIGÉ: Clavier iOS)
+            // Utiliser setTimeout pour forcer le focus (CORRIGÉ)
             setTimeout(() => {
                 document.getElementById('amount').focus(); 
             }, 0);
@@ -229,7 +229,7 @@ function updateCombinedTransactionList() {
 
     // Afficher les 5 dernières transactions
     combined.slice(0, 5).forEach((t) => {
-        const isExpense = expenses.some(e => e.id === t.id); // Utiliser expenses.some pour vérifier si c'est une dépense
+        const isExpense = t.type === 'expense';
         const typeClass = isExpense ? 'expense' : 'income';
         
         const li = document.createElement('li');
