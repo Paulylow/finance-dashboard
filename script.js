@@ -148,7 +148,7 @@ document.getElementById('expenseForm').addEventListener('submit', (e) => {
       return;
   }
   
-  const expense = { id: Date.now(), account: selectedAccountName, reason, amount, date: new Date().toLocaleDateString(), time: new Date().toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'}) };
+  const expense = { id: Date.now(), account: selectedAccountName, reason, amount, date: new Date().toLocaleDateString(), time: new Date().toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'}), type: 'expense' };
   expenses.push(expense);
   localStorage.setItem('expenses', JSON.stringify(expenses));
   
@@ -162,35 +162,13 @@ document.getElementById('expenseForm').addEventListener('submit', (e) => {
       updateAccountSelects();
   }
 
-  updateExpenseList();
+  updateCombinedTransactionList(); // Mise à jour de la liste combinée
   updateChart();
   updateHistory();
   e.target.reset();
   modalWithdrawMoney.style.display = 'none'; // Ferme la modale
 });
 
-function updateExpenseList() {
-  const list = document.getElementById('expenseList');
-  list.innerHTML = '';
-  // Afficher les 5 dernières dépenses
-  expenses.slice().reverse().slice(0, 5).forEach((exp) => {
-    const li = document.createElement('li');
-    li.innerHTML = `
-        <div class="transaction-icon" style="background:${getIconColor(exp.reason)};">${getIcon(exp.reason)}</div>
-        <div class="transaction-details">
-            <strong>${exp.reason}</strong>
-            <span>${exp.time} - ${exp.date} [${exp.account}]</span>
-        </div>
-        <span class="transaction-amount expense">-€${exp.amount.toFixed(2)}</span>
-    `;
-    
-    const deleteBtn = document.createElement('button');
-    deleteBtn.textContent = 'X';
-    deleteBtn.onclick = () => deleteTransaction('expense', exp.id, exp.amount, exp.account); 
-    li.appendChild(deleteBtn);
-    list.appendChild(li);
-  });
-}
 
 // === REVENUS (Le compte est maintenant affecté) ===
 document.getElementById('incomeForm').addEventListener('submit', (e) => {
@@ -207,7 +185,7 @@ document.getElementById('incomeForm').addEventListener('submit', (e) => {
       return;
   }
   
-  const income = { id: Date.now(), account: selectedAccountName, reason, amount, date: new Date().toLocaleDateString(), time: new Date().toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'}) };
+  const income = { id: Date.now(), account: selectedAccountName, reason, amount, date: new Date().toLocaleDateString(), time: new Date().toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'}), type: 'income' };
   incomes.push(income);
   localStorage.setItem('incomes', JSON.stringify(incomes));
   
@@ -221,35 +199,48 @@ document.getElementById('incomeForm').addEventListener('submit', (e) => {
       updateAccountSelects();
   }
   
-  updateIncomeList();
+  updateCombinedTransactionList(); // Mise à jour de la liste combinée
   updateChart();
   updateHistory();
   e.target.reset();
   modalAddMoney.style.display = 'none'; // Ferme la modale
 });
 
-function updateIncomeList() {
-  const list = document.getElementById('incomeList');
-  list.innerHTML = '';
-  // Afficher les 5 derniers revenus
-  incomes.slice().reverse().slice(0, 5).forEach((inc) => {
-    const li = document.createElement('li');
-    li.innerHTML = `
-        <div class="transaction-icon" style="background:${getIconColor(inc.reason)};">${getIcon(inc.reason)}</div>
-        <div class="transaction-details">
-            <strong>${inc.reason}</strong>
-            <span>${inc.time} - ${inc.date} [${inc.account}]</span>
-        </div>
-        <span class="transaction-amount income">+€${inc.amount.toFixed(2)}</span>
-    `;
+
+// === NOUVEAU: Mettre à jour la liste des transactions combinées (Tableau de bord) ===
+function updateCombinedTransactionList() {
+    const combined = [
+        ...expenses.map(t => ({ ...t, type: 'expense' })),
+        ...incomes.map(t => ({ ...t, type: 'income' }))
+    ];
     
-    const deleteBtn = document.createElement('button');
-    deleteBtn.textContent = 'X';
-    deleteBtn.onclick = () => deleteTransaction('income', inc.id, inc.amount, inc.account); 
-    li.appendChild(deleteBtn);
-    list.appendChild(li);
-  });
+    // Trier par ID descendant (le plus récent en haut)
+    combined.sort((a, b) => b.id - a.id); 
+
+    const list = document.getElementById('combinedTransactionList');
+    list.innerHTML = '';
+
+    // Afficher les 5 dernières transactions
+    combined.slice(0, 5).forEach((t) => {
+        const isExpense = t.type === 'expense';
+        const typeClass = isExpense ? 'expense' : 'income';
+        
+        const li = document.createElement('li');
+        li.innerHTML = `
+            <div class="transaction-icon" style="background:${getIconColor(t.reason)};">${getIcon(t.reason)}</div>
+            <div class="transaction-details">
+                <strong>${t.reason}</strong>
+                <span>${t.time} - ${t.date} [${t.account}]</span>
+            </div>
+            <span class="transaction-amount ${typeClass}">
+                ${isExpense ? '-€' : '+€'}${t.amount.toFixed(2)}
+            </span>
+            <button onclick="deleteTransaction('${t.type}', ${t.id}, ${t.amount}, '${t.account}')">X</button>
+        `;
+        list.appendChild(li);
+    });
 }
+
 
 // === FONCTION GÉNÉRIQUE DE SUPPRESSION DE TRANSACTION (Ajuste le compte impacté) ===
 function deleteTransaction(type, id, amount, accountName) {
@@ -268,25 +259,24 @@ function deleteTransaction(type, id, amount, accountName) {
     if (type === 'expense') {
         expenses = expenses.filter(exp => exp.id !== id); 
         localStorage.setItem('expenses', JSON.stringify(expenses));
-        updateExpenseList();
     } else if (type === 'income') {
         incomes = incomes.filter(inc => inc.id !== id);
         localStorage.setItem('incomes', JSON.stringify(incomes));
-        updateIncomeList();
     }
     
     updateChart();
+    updateCombinedTransactionList(); // Mise à jour de la liste combinée
     updateHistory();
 }
 
-// === Fonctions pour les icônes de transaction (pour le style Revolut) ===
+// === Fonctions pour les icônes de transaction (basées sur les options des sélecteurs) ===
 function getIcon(reason) {
     switch (reason.toLowerCase()) {
-        // Revenus (doit correspondre aux options du sélecteur)
+        // Revenus
         case 'salaire': return '💰';
         case 'anniversaire': return '🎁';
         case 'prime': return '🌟';
-        // Dépenses (doit correspondre aux options du sélecteur)
+        // Dépenses
         case 'voiture': return '🚗';
         case 'nourriture': return '🍔';
         case 'transport': return '🚌';
@@ -407,7 +397,6 @@ function getUniqueMonths() {
     
     allTransactions.forEach(t => {
         const dateParts = t.date.split('/');
-        // Assumer le format DD/MM/AAAA. Mois est l'index 1.
         if (dateParts.length >= 2) {
             uniqueMonths.add(`${dateParts[1]}/${dateParts[2]}`);
         }
@@ -420,7 +409,6 @@ function getUniqueMonths() {
          uniqueMonths.add(currentMonthKey);
     }
     
-    // Convertir en tableau et trier (le plus récent en premier)
     const sortedMonths = Array.from(uniqueMonths).sort((a, b) => {
         const [mA, yA] = a.split('/').map(Number);
         const [mB, yB] = b.split('/').map(Number);
@@ -444,7 +432,6 @@ function renderMonthSelector() {
         monthSelector.appendChild(option);
     });
 
-    // Sélectionner le mois en cours par défaut
     const today = new Date();
     const currentMonthKey = `${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`;
     monthSelector.value = currentMonthKey;
@@ -458,7 +445,7 @@ function updateHistory() {
     
     const [selectedMonth, selectedYear] = selectedMonthKey.split('/');
 
-    const allTransactions = [...expenses, ...incomes].sort((a, b) => b.id - a.id); // Trier par date/ID descendant
+    const allTransactions = [...expenses, ...incomes];
     
     const filteredTransactions = allTransactions.filter(t => {
         const dateParts = t.date.split('/');
@@ -476,8 +463,9 @@ function updateHistory() {
     const list = document.getElementById('historyTransactionList');
     list.innerHTML = '';
 
-    filteredTransactions.forEach(t => {
-        const isExpense = expenses.some(e => e.id === t.id); // Utiliser .some pour vérifier l'ID
+    // Trier pour l'historique par date/ID descendant (plus récent en haut)
+    filteredTransactions.sort((a, b) => b.id - a.id).forEach(t => {
+        const isExpense = expenses.some(e => e.id === t.id);
         const typeClass = isExpense ? 'expense' : 'income';
         
         if (isExpense) {
@@ -530,10 +518,13 @@ function showSection(target) {
   } else if (target === 'historique') {
     document.getElementById('section-historique').style.display = 'block';
     updateHistory(); 
-  } else if (target === 'parametres') {
-    document.getElementById('section-parametres').style.display = 'block';
   }
-  document.querySelector(`.sidebar li[data-target="${target}"]`).classList.add('active');
+  
+  // S'assurer que le lien actif est coloré, y compris en mobile
+  const activeLink = document.querySelector(`.sidebar li[data-target="${target}"]`);
+  if(activeLink) {
+      activeLink.classList.add('active');
+  }
 }
 
 navLinks.forEach(link => {
@@ -550,9 +541,9 @@ function ensureModalsClosed() {
 }
 
 // === Initialisation de l'affichage au chargement ===
+// La fonction de mise à jour des transactions est maintenant unique
+updateCombinedTransactionList();
 showSection('tableau');
-updateExpenseList();
-updateIncomeList();
 updateAccountList();
 updateAccountChart();
 updateAccountSelects();
