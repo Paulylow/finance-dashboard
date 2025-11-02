@@ -1,8 +1,6 @@
 // === Données initiales ===
-// Comptes vides pour un démarrage "clean". Le solde total commence à 0.
 let accounts = JSON.parse(localStorage.getItem('accounts')) || [];
 
-// Le Solde Total DOIT être la somme des comptes.
 let totalBalance = accounts.reduce((sum, acc) => sum + acc.balance, 0); 
 
 let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
@@ -102,7 +100,7 @@ function updateChart() {
 }
 
 
-// === GESTION DES MODALES ===
+// === GESTION DES MODALES (CORRIGÉ: Affichage des modales) ===
 const modalAddMoney = document.getElementById('modal-add-money');
 const modalWithdrawMoney = document.getElementById('modal-withdraw-money');
 const closeButtons = document.querySelectorAll('.close-button');
@@ -110,12 +108,12 @@ const closeButtons = document.querySelectorAll('.close-button');
 document.querySelectorAll('.action-item').forEach(item => {
     item.addEventListener('click', (e) => {
         const action = e.currentTarget.dataset.action;
+        // Utilisez 'flex' pour s'assurer que le style CSS fonctionne (display: flex dans le CSS)
         if (action === 'add-money') {
             modalAddMoney.style.display = 'flex';
         } else if (action === 'withdraw-money') {
             modalWithdrawMoney.style.display = 'flex';
         }
-        // Pour les autres actions (info, more), vous pouvez ajouter des modales similaires ou d'autres logiques
     });
 });
 
@@ -127,10 +125,10 @@ closeButtons.forEach(button => {
 });
 
 window.addEventListener('click', (event) => {
-    if (event.target == modalAddMoney) {
+    if (event.target === modalAddMoney) {
         modalAddMoney.style.display = 'none';
     }
-    if (event.target == modalWithdrawMoney) {
+    if (event.target === modalWithdrawMoney) {
         modalWithdrawMoney.style.display = 'none';
     }
 });
@@ -192,8 +190,6 @@ function updateExpenseList() {
     li.appendChild(deleteBtn);
     list.appendChild(li);
   });
-  const totalExpenses = expenses.reduce((acc, e) => acc + e.amount, 0);
-  // document.getElementById('expenses').textContent = `€${totalExpenses.toLocaleString('fr-FR')}`; // Supprimé du dashboard principal
 }
 
 // === REVENUS (Le compte est maintenant affecté) ===
@@ -252,8 +248,6 @@ function updateIncomeList() {
     li.appendChild(deleteBtn);
     list.appendChild(li);
   });
-  const totalIncome = incomes.reduce((acc, e) => acc + e.amount, 0);
-  // document.getElementById('income').textContent = `€${totalIncome.toLocaleString('fr-FR')}`; // Supprimé du dashboard principal
 }
 
 // === FONCTION GÉNÉRIQUE DE SUPPRESSION DE TRANSACTION (Ajuste le compte impacté) ===
@@ -286,19 +280,20 @@ function deleteTransaction(type, id, amount, accountName) {
 // === Fonctions pour les icônes de transaction (pour le style Revolut) ===
 function getIcon(reason) {
     const lowerReason = reason.toLowerCase();
-    if (lowerReason.includes('salaire')) return '💸';
+    if (lowerReason.includes('salaire') || lowerReason.includes('revenu')) return '💸';
     if (lowerReason.includes('essence') || lowerReason.includes('carburant')) return '⛽';
     if (lowerReason.includes('restaurant') || lowerReason.includes('repas')) return '🍽️';
     if (lowerReason.includes('courses')) return '🛒';
-    if (lowerReason.includes('internet') || lowerReason.includes('netflix')) return '🌐';
+    if (lowerReason.includes('internet') || lowerReason.includes('netflix') || lowerReason.includes('abonnement')) return '🌐';
     if (lowerReason.includes('sport')) return '🏋️';
     if (lowerReason.includes('loyer')) return '🏠';
+    if (lowerReason.includes('action') || lowerReason.includes('bourse')) return '📈';
     return '📝'; // Icône par défaut
 }
 
 function getIconColor(reason) {
     const lowerReason = reason.toLowerCase();
-    if (lowerReason.includes('salaire')) return '#4CD964'; // Vert
+    if (lowerReason.includes('salaire') || lowerReason.includes('revenu')) return '#4CD964'; // Vert
     if (lowerReason.includes('loyer')) return '#FF9500'; // Orange
     if (lowerReason.includes('courses')) return '#007AFF'; // Bleu
     if (lowerReason.includes('sport')) return '#FF2D55'; // Rouge
@@ -387,20 +382,20 @@ function updateAccountChart() {
 }
 
 
-// === ACTIONS (Yahoo Finance) (Solution de Contingence) ===
+// === ACTIONS (Yahoo Finance) (Final Corrigé) ===
 const stockList = document.getElementById('stockList');
 const refreshButton = document.getElementById('refreshStocks');
 const addStockForm = document.getElementById('addStockForm');
 
+// Structure de donnée incluant 'shares' (quantité)
 let myStocks = JSON.parse(localStorage.getItem('myStocks')) || [
-  { symbol: 'AAPL', name: 'Apple' },
-  { symbol: 'MSFT', name: 'Microsoft' },
-  { symbol: 'TSLA', name: 'Tesla' },
-  { symbol: 'BNP.PA', name: 'BNP Paribas' }
+  { symbol: 'AAPL', name: 'Apple', shares: 10 },
+  { symbol: 'MSFT', name: 'Microsoft', shares: 5 },
 ];
 if (!localStorage.getItem('myStocks')) {
     localStorage.setItem('myStocks', JSON.stringify(myStocks));
 }
+
 
 async function fetchStocks() {
   stockList.innerHTML = '<p style="text-align:center; color:#B0B0B0;">Chargement des actions...</p>';
@@ -411,7 +406,6 @@ async function fetchStocks() {
       return;
   }
   
-  // Liste des URLs à essayer
   const urlsToTry = [
     `https://query1.finance.yahoo.com/v8/finance/quote?symbols=${symbols}`,
     `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${symbols}`
@@ -422,10 +416,8 @@ async function fetchStocks() {
 
   for (const url of urlsToTry) {
       try {
-          console.log(`Tentative de connexion à l'API: ${url}`);
           const res = await fetch(url);
           if (!res.ok) {
-              console.warn(`L'URL ${url} a renvoyé une erreur HTTP: ${res.status}`);
               continue; 
           }
           const data = await res.json();
@@ -433,13 +425,10 @@ async function fetchStocks() {
           if (data.quoteResponse && data.quoteResponse.result && data.quoteResponse.result.length > 0) {
               finalData = data;
               success = true;
-              console.log('Connexion API réussie.');
               break; 
-          } else {
-              console.warn(`L'URL ${url} a renvoyé une réponse vide ou invalide.`);
           }
       } catch (err) {
-          console.error(`Erreur de connexion pour ${url}:`, err);
+          // Continuer à l'URL suivante.
       }
   }
 
@@ -452,6 +441,12 @@ async function fetchStocks() {
   stockList.innerHTML = '';
   
   finalData.quoteResponse.result.forEach((stock) => {
+    // Trouver la quantité possédée localement
+    const localStock = myStocks.find(s => s.symbol === stock.symbol);
+    const shares = localStock ? localStock.shares : 0;
+    const marketPrice = stock.regularMarketPrice || 0;
+    const currentValue = shares * marketPrice;
+      
     const div = document.createElement('div');
     const change = stock.regularMarketChangePercent || 0;
     const color = change >= 0 ? '#4CD964' : '#FF5F6D';
@@ -460,11 +455,12 @@ async function fetchStocks() {
     deleteButton.textContent = 'X';
     deleteButton.onclick = () => deleteStock(stock.symbol);
     
-
     div.innerHTML = `
       <span>
-        <strong>${stock.shortName || stock.symbol}</strong> (${stock.symbol})
-        — €${stock.regularMarketPrice?.toFixed(2) || 'N/A'}
+        <strong>${stock.shortName || stock.symbol}</strong> (${stock.symbol}) 
+        <span style="font-size: 12px; color: ${color};">(${shares} actions)</span>
+        <br>
+        Valeur: €${currentValue.toFixed(2)} 
         <span style="color:${color}">(${change?.toFixed(2) || 0}%)</span>
       </span>
     `;
@@ -473,18 +469,20 @@ async function fetchStocks() {
   });
 }
 
+// CORRIGÉ: Ajout du champ 'shares' au formulaire
 addStockForm.addEventListener('submit', (e) => {
   e.preventDefault();
   const symbol = document.getElementById('stockSymbol').value.toUpperCase().trim();
   const name = document.getElementById('stockName').value.trim();
+  const shares = parseFloat(document.getElementById('stockShares').value); // Récupérer la quantité
   
-  if (symbol && name && !myStocks.find(s => s.symbol === symbol)) {
-    myStocks.push({ symbol, name });
+  if (symbol && name && !isNaN(shares) && shares >= 0 && !myStocks.find(s => s.symbol === symbol)) {
+    myStocks.push({ symbol, name, shares }); // Ajouter la quantité
     localStorage.setItem('myStocks', JSON.stringify(myStocks));
     fetchStocks();
     e.target.reset();
-  } else if (!symbol || !name) {
-    alert('Veuillez remplir le Symbole et le Nom.');
+  } else if (!symbol || !name || isNaN(shares) || shares < 0) {
+    alert('Veuillez remplir le Symbole, le Nom, et une quantité valide.');
   } else if (myStocks.find(s => s.symbol === symbol)) {
     alert('Ce symbole est déjà dans votre liste.');
   }
