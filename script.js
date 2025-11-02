@@ -212,7 +212,7 @@ document.getElementById('incomeForm').addEventListener('submit', (e) => {
   modalAddMoney.style.display = 'none'; // Ferme la modale
 });
 
-// === NOUVEAU: Mettre à jour la liste des transactions combinées (Tableau de bord) ===
+// === Mettre à jour la liste des transactions combinées (Tableau de bord) ===
 function updateCombinedTransactionList() {
     const combined = [
         ...expenses.map(t => ({ ...t, type: 'expense' })),
@@ -512,24 +512,32 @@ function fetchStocks() {
 const navLinks = document.querySelectorAll('.sidebar li');
 
 function showSection(target) {
+  // 1. Masquer toutes les sections
   document.querySelectorAll('.main > section').forEach(el => {
     el.style.display = 'none';
   });
   document.querySelectorAll('.sidebar li').forEach(li => li.classList.remove('active'));
 
-  if (target === 'tableau') {
-    document.getElementById('section-tableau').style.display = 'flex'; 
-  } else if (target === 'comptes') {
-    document.getElementById('section-comptes').style.display = 'block';
-  } else if (target === 'historique') {
-    document.getElementById('section-historique').style.display = 'block';
-    updateHistory(); 
+  // 2. Afficher la section ciblée avec le bon display mode
+  const targetElement = document.getElementById(`section-${target}`);
+  if (targetElement) {
+      // Le tableau de bord utilise flex pour l'organisation
+      targetElement.style.display = (target === 'tableau') ? 'flex' : 'block'; 
+  } else {
+      // S'assurer qu'au moins le tableau de bord s'affiche en cas d'erreur de cible
+      document.getElementById('section-tableau').style.display = 'flex';
+      target = 'tableau'; 
   }
   
-  // CORRIGÉ: S'assurer que le lien actif est coloré
+  // 3. Mettre à jour l'état actif
   const activeLink = document.querySelector(`.sidebar li[data-target="${target}"]`);
   if(activeLink) {
       activeLink.classList.add('active');
+  }
+  
+  // 4. (Ré)initialisation spécifique si nécessaire
+  if (target === 'historique') {
+      updateHistory(); 
   }
 }
 
@@ -548,7 +556,7 @@ function ensureModalsClosed() {
 
 // === Initialisation de l'affichage au chargement ===
 updateCombinedTransactionList();
-showSection('tableau');
+showSection('tableau'); // Démarrer sur le tableau de bord
 updateAccountList();
 updateAccountChart();
 updateAccountSelects();
