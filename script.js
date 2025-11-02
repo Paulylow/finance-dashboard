@@ -416,6 +416,7 @@ navLinks.forEach(link => {
 
 // NOUVEAU: Fonction pour forcer la fermeture des modales au démarrage
 function ensureModalsClosed() {
+    // Si la modale a display: none dans le HTML, cette ligne n'est plus nécessaire mais la garde pour la sécurité.
     document.getElementById('modal-add-money').style.display = 'none';
     document.getElementById('modal-withdraw-money').style.display = 'none';
 }
@@ -427,4 +428,4 @@ updateIncomeList();
 updateAccountList();
 updateAccountChart();
 updateAccountSelects();
-ensureModalsClosed(); // Appel de la fonction de fermeture pour purger l'écran au démarrage
+ensureModalsClosed();
