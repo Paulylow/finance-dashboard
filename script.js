@@ -100,7 +100,7 @@ function updateChart() {
 }
 
 
-// === GESTION DES MODALES (CORRIGÉ: Ajout du focus pour le clavier) ===
+// === GESTION DES MODALES ===
 const modalAddMoney = document.getElementById('modal-add-money');
 const modalWithdrawMoney = document.getElementById('modal-withdraw-money');
 const closeButtons = document.querySelectorAll('.close-button');
@@ -110,13 +110,11 @@ document.querySelectorAll('.action-item').forEach(item => {
         const action = e.currentTarget.dataset.action;
         if (action === 'add-money') {
             modalAddMoney.style.display = 'flex';
-            // Utiliser setTimeout pour forcer le focus (CORRIGÉ)
             setTimeout(() => {
                 document.getElementById('incomeAmount').focus(); 
             }, 0); 
         } else if (action === 'withdraw-money') {
             modalWithdrawMoney.style.display = 'flex';
-            // Utiliser setTimeout pour forcer le focus (CORRIGÉ)
             setTimeout(() => {
                 document.getElementById('amount').focus(); 
             }, 0);
@@ -147,7 +145,7 @@ document.getElementById('expenseForm').addEventListener('submit', (e) => {
   
   const selectedAccountName = document.getElementById('expenseAccount').value;
   const amountInput = document.getElementById('amount').value.trim();
-  const reason = document.getElementById('reason').value; // Récupère la valeur du sélecteur
+  const reason = document.getElementById('reason').value; 
   
   const amount = parseAmount(amountInput);
 
@@ -184,7 +182,7 @@ document.getElementById('incomeForm').addEventListener('submit', (e) => {
   
   const selectedAccountName = document.getElementById('incomeAccount').value;
   const amountInput = document.getElementById('incomeAmount').value.trim();
-  const reason = document.getElementById('incomeReason').value; // Récupère la valeur du sélecteur
+  const reason = document.getElementById('incomeReason').value; 
   
   const amount = parseAmount(amountInput);
   
@@ -214,20 +212,18 @@ document.getElementById('incomeForm').addEventListener('submit', (e) => {
   modalAddMoney.style.display = 'none'; // Ferme la modale
 });
 
-// === NOUVEAU: Mettre à jour la liste des transactions combinées (Tableau de bord) ===
+// === Mettre à jour la liste des transactions combinées (Tableau de bord) ===
 function updateCombinedTransactionList() {
     const combined = [
         ...expenses.map(t => ({ ...t, type: 'expense' })),
         ...incomes.map(t => ({ ...t, type: 'income' }))
     ];
     
-    // Trier par ID descendant (le plus récent en haut)
     combined.sort((a, b) => b.id - a.id); 
 
     const list = document.getElementById('combinedTransactionList');
     list.innerHTML = '';
 
-    // Afficher les 5 dernières transactions
     combined.slice(0, 5).forEach((t) => {
         const isExpense = t.type === 'expense';
         const typeClass = isExpense ? 'expense' : 'income';
@@ -309,9 +305,9 @@ function getIconColor(reason, isExpense) {
         case 'autres': 
             return '#4CD964'; // Vert pour revenus (y compris 'Autres')
         case 'nourriture':
-            return '#007AFF'; // Bleu pour nourriture si ce n'est pas une dépense
+            return '#007AFF'; // Bleu
         default: 
-            return '#8F7CF9'; // Violet par défaut pour autres revenus
+            return '#8F7CF9'; // Violet par défaut
     }
 }
 
