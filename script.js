@@ -510,18 +510,32 @@ function fetchStocks() {
 
 // === NAVIGATION (Single Page Application - SPA) ===
 const navLinks = document.querySelectorAll('.sidebar li');
+// Liste des ID de sections principales pour le masquage/affichage
+const allSections = [
+    document.getElementById('section-tableau'),
+    document.getElementById('section-comptes'),
+    document.getElementById('section-historique')
+];
+// Le graphique est en dehors des sections mais doit être géré
+const balanceChartElement = document.getElementById('balanceChart');
+
 
 function showSection(target) {
-  // 1. Masquer toutes les sections
-  document.querySelectorAll('.main > section').forEach(el => {
-    el.style.display = 'none';
+    
+  // 1. Masquer tous les conteneurs de section et le graphique
+  allSections.forEach(el => {
+    if (el) { el.style.display = 'none'; }
   });
+  if (balanceChartElement) {
+      balanceChartElement.style.display = 'none';
+  }
   document.querySelectorAll('.sidebar li').forEach(li => li.classList.remove('active'));
 
-  // 2. Afficher la section ciblée avec le bon display mode (CORRIGÉ)
+
+  // 2. Afficher la section ciblée avec le bon display mode
   const targetElement = document.getElementById(`section-${target}`);
   if (targetElement) {
-      // Tableau de bord utilise flex pour l'organisation; les autres utilisent block.
+      // Tableau de bord utilise flex pour l'organisation des cartes/actions rapides
       targetElement.style.display = (target === 'tableau') ? 'flex' : 'block'; 
   } else {
       // Fallback: Afficher le tableau de bord si la cible est invalide
@@ -529,13 +543,21 @@ function showSection(target) {
       target = 'tableau'; 
   }
   
-  // 3. Mettre à jour l'état actif
+  // 3. Afficher les éléments spécifiques au Tableau de Bord
+  if (target === 'tableau') {
+      if (balanceChartElement) {
+          balanceChartElement.style.display = 'block';
+      }
+      updateCombinedTransactionList(); // Rafraîchit les transactions récentes
+  }
+  
+  // 4. Mettre à jour l'état actif
   const activeLink = document.querySelector(`.sidebar li[data-target="${target}"]`);
   if(activeLink) {
       activeLink.classList.add('active');
   }
   
-  // 4. (Ré)initialisation spécifique si nécessaire
+  // 5. (Ré)initialisation spécifique si nécessaire
   if (target === 'historique') {
       updateHistory(); 
   }
