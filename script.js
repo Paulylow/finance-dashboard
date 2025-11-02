@@ -513,28 +513,24 @@ const navLinks = document.querySelectorAll('.sidebar li');
 
 function showSection(target) {
   // 1. Masquer tous les conteneurs de section et le graphique
-  document.querySelectorAll('.main > section').forEach(el => {
+  // Nous ciblons TOUTES les sections ET le graphique canvas
+  document.querySelectorAll('.main > section, .main > canvas').forEach(el => {
     el.style.display = 'none';
   });
   document.querySelectorAll('.sidebar li').forEach(li => li.classList.remove('active'));
 
-  // 2. Afficher la section ciblée avec le bon display mode (CORRIGÉ: Utilise la nouvelle approche)
+  // 2. Afficher la section ciblée avec le bon display mode
   const targetElement = document.getElementById(`section-${target}`);
+  
   if (targetElement) {
       // Tableau de bord utilise flex pour l'organisation; les autres utilisent block.
       targetElement.style.display = (target === 'tableau') ? 'flex' : 'block'; 
-  } else {
-      // Fallback: Afficher le tableau de bord si la cible est invalide
-      document.getElementById('section-tableau').style.display = 'flex';
-      target = 'tableau'; 
   }
   
-  // 3. Afficher les éléments spécifiques au Tableau de Bord
+  // 3. Afficher les éléments spécifiques au Tableau de Bord (y compris le graphique)
   if (target === 'tableau') {
-      document.getElementById('balanceChart').style.display = 'block'; // S'assurer que le graphique s'affiche
+      document.getElementById('balanceChart').style.display = 'block'; 
       updateCombinedTransactionList(); 
-  } else {
-      document.getElementById('balanceChart').style.display = 'none'; // Masquer le graphique sur les autres onglets
   }
   
   // 4. Mettre à jour l'état actif
