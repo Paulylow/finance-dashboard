@@ -212,7 +212,7 @@ document.getElementById('incomeForm').addEventListener('submit', (e) => {
   modalAddMoney.style.display = 'none'; // Ferme la modale
 });
 
-// === Mettre à jour la liste des transactions combinées (Tableau de bord) ===
+// === NOUVEAU: Mettre à jour la liste des transactions combinées (Tableau de bord) ===
 function updateCombinedTransactionList() {
     const combined = [
         ...expenses.map(t => ({ ...t, type: 'expense' })),
@@ -431,4 +431,125 @@ function renderMonthSelector() {
     monthSelector.innerHTML = '';
     
     uniqueMonths.forEach(key => {
-        const [month,
+        const [month, year] = key.split('/');
+        const monthName = new Date(year, month - 1, 1).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+        const option = document.createElement('option');
+        option.value = key;
+        option.textContent = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+        monthSelector.appendChild(option);
+    });
+
+    const today = new Date();
+    const currentMonthKey = `${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`;
+    monthSelector.value = currentMonthKey;
+}
+
+function updateHistory() {
+    renderMonthSelector();
+    
+    const selectedMonthKey = monthSelector.value;
+    if (!selectedMonthKey) return;
+    
+    const [selectedMonth, selectedYear] = selectedMonthKey.split('/');
+
+    const allTransactions = [...expenses, ...incomes];
+    
+    const filteredTransactions = allTransactions.filter(t => {
+        const dateParts = t.date.split('/');
+        if (dateParts.length >= 2) {
+            const transactionMonth = dateParts[1];
+            const transactionYear = dateParts[2];
+            return transactionMonth === selectedMonth && transactionYear === selectedYear;
+        }
+        return false;
+    });
+    
+    let totalExpenses = 0;
+    let totalIncomes = 0;
+    
+    const list = document.getElementById('historyTransactionList');
+    list.innerHTML = '';
+
+    filteredTransactions.sort((a, b) => b.id - a.id).forEach(t => {
+        const isExpense = expenses.some(e => e.id === t.id);
+        const typeClass = isExpense ? 'expense' : 'income';
+        
+        if (isExpense) {
+            totalExpenses += t.amount;
+        } else {
+            totalIncomes += t.amount;
+        }
+        
+        const li = document.createElement('li');
+        li.innerHTML = `
+            <div class="transaction-icon" style="background:${getIconColor(t.reason, isExpense)};">${getIcon(t.reason)}</div>
+            <div class="transaction-details">
+                <strong>${t.reason}</strong>
+                <span>${t.time} - ${t.date} [${t.account}]</span>
+            </div>
+            <span class="transaction-amount ${typeClass}">
+                ${isExpense ? '-€' : '+€'}${t.amount.toFixed(2)}
+            </span>
+        `;
+        list.appendChild(li);
+    });
+    
+    document.getElementById('historyTotalExpenses').textContent = `€${totalExpenses.toLocaleString('fr-FR', { minimumFractionDigits: 2 })}`;
+    document.getElementById('historyTotalIncomes').textContent = `€${totalIncomes.toLocaleString('fr-FR', { minimumFractionDigits: 2 })}`;
+}
+
+monthSelector.addEventListener('change', updateHistory);
+
+
+// === ACTIONS (SUPPRIMÉES) ===
+let myStocks = [];
+function fetchStocks() { 
+    // Fonction vide car la section est supprimée
+} 
+
+
+// === NAVIGATION (Single Page Application - SPA) ===
+const navLinks = document.querySelectorAll('.sidebar li');
+
+function showSection(target) {
+  document.querySelectorAll('.main > section').forEach(el => {
+    el.style.display = 'none';
+  });
+  document.querySelectorAll('.sidebar li').forEach(li => li.classList.remove('active'));
+
+  if (target === 'tableau') {
+    document.getElementById('section-tableau').style.display = 'flex'; 
+  } else if (target === 'comptes') {
+    document.getElementById('section-comptes').style.display = 'block';
+  } else if (target === 'historique') {
+    document.getElementById('section-historique').style.display = 'block';
+    updateHistory(); 
+  }
+  
+  // CORRIGÉ: S'assurer que le lien actif est coloré
+  const activeLink = document.querySelector(`.sidebar li[data-target="${target}"]`);
+  if(activeLink) {
+      activeLink.classList.add('active');
+  }
+}
+
+navLinks.forEach(link => {
+  link.addEventListener('click', () => {
+    const target = link.getAttribute('data-target');
+    showSection(target);
+  });
+});
+
+// NOUVEAU: Fonction pour forcer la fermeture des modales au démarrage
+function ensureModalsClosed() {
+    document.getElementById('modal-add-money').style.display = 'none';
+    document.getElementById('modal-withdraw-money').style.display = 'none';
+}
+
+// === Initialisation de l'affichage au chargement ===
+updateCombinedTransactionList();
+showSection('tableau');
+updateAccountList();
+updateAccountChart();
+updateAccountSelects();
+ensureModalsClosed();
