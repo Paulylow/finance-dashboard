@@ -108,7 +108,6 @@ const closeButtons = document.querySelectorAll('.close-button');
 document.querySelectorAll('.action-item').forEach(item => {
     item.addEventListener('click', (e) => {
         const action = e.currentTarget.dataset.action;
-        // Utilisez 'flex' pour s'assurer que le style CSS fonctionne (display: flex dans le CSS)
         if (action === 'add-money') {
             modalAddMoney.style.display = 'flex';
         } else if (action === 'withdraw-money') {
@@ -382,119 +381,14 @@ function updateAccountChart() {
 }
 
 
-// === ACTIONS (Yahoo Finance) (Final Corrigé) ===
-const stockList = document.getElementById('stockList');
-const refreshButton = document.getElementById('refreshStocks');
-const addStockForm = document.getElementById('addStockForm');
+// === ACTIONS (SUPPRIMÉES) ===
+// Code de la section Actions supprimé pour simplifier l'application.
 
-// Structure de donnée incluant 'shares' (quantité)
-let myStocks = JSON.parse(localStorage.getItem('myStocks')) || [
-  { symbol: 'AAPL', name: 'Apple', shares: 10 },
-  { symbol: 'MSFT', name: 'Microsoft', shares: 5 },
-];
-if (!localStorage.getItem('myStocks')) {
-    localStorage.setItem('myStocks', JSON.stringify(myStocks));
-}
-
-
-async function fetchStocks() {
-  stockList.innerHTML = '<p style="text-align:center; color:#B0B0B0;">Chargement des actions...</p>';
-  
-  const symbols = myStocks.map(s => s.symbol).join(',');
-  if (!symbols) {
-      stockList.innerHTML = '<p style="text-align:center; color:#B0B0B0;">Aucune action à afficher. Ajoutez-en une !</p>';
-      return;
-  }
-  
-  const urlsToTry = [
-    `https://query1.finance.yahoo.com/v8/finance/quote?symbols=${symbols}`,
-    `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${symbols}`
-  ];
-  
-  let success = false;
-  let finalData = null;
-
-  for (const url of urlsToTry) {
-      try {
-          const res = await fetch(url);
-          if (!res.ok) {
-              continue; 
-          }
-          const data = await res.json();
-          
-          if (data.quoteResponse && data.quoteResponse.result && data.quoteResponse.result.length > 0) {
-              finalData = data;
-              success = true;
-              break; 
-          }
-      } catch (err) {
-          // Continuer à l'URL suivante.
-      }
-  }
-
-  if (!success || !finalData) {
-      stockList.innerHTML = '<p style="text-align:center; color:#FF5F6D;">Erreur lors du chargement des actions. (API non accessible)</p>';
-      return;
-  }
-
-  // --- RENDU EN CAS DE SUCCÈS ---
-  stockList.innerHTML = '';
-  
-  finalData.quoteResponse.result.forEach((stock) => {
-    // Trouver la quantité possédée localement
-    const localStock = myStocks.find(s => s.symbol === stock.symbol);
-    const shares = localStock ? localStock.shares : 0;
-    const marketPrice = stock.regularMarketPrice || 0;
-    const currentValue = shares * marketPrice;
-      
-    const div = document.createElement('div');
-    const change = stock.regularMarketChangePercent || 0;
-    const color = change >= 0 ? '#4CD964' : '#FF5F6D';
-    
-    const deleteButton = document.createElement('button');
-    deleteButton.textContent = 'X';
-    deleteButton.onclick = () => deleteStock(stock.symbol);
-    
-    div.innerHTML = `
-      <span>
-        <strong>${stock.shortName || stock.symbol}</strong> (${stock.symbol}) 
-        <span style="font-size: 12px; color: ${color};">(${shares} actions)</span>
-        <br>
-        Valeur: €${currentValue.toFixed(2)} 
-        <span style="color:${color}">(${change?.toFixed(2) || 0}%)</span>
-      </span>
-    `;
-    div.appendChild(deleteButton);
-    stockList.appendChild(div);
-  });
-}
-
-// CORRIGÉ: Ajout du champ 'shares' au formulaire
-addStockForm.addEventListener('submit', (e) => {
-  e.preventDefault();
-  const symbol = document.getElementById('stockSymbol').value.toUpperCase().trim();
-  const name = document.getElementById('stockName').value.trim();
-  const shares = parseFloat(document.getElementById('stockShares').value); // Récupérer la quantité
-  
-  if (symbol && name && !isNaN(shares) && shares >= 0 && !myStocks.find(s => s.symbol === symbol)) {
-    myStocks.push({ symbol, name, shares }); // Ajouter la quantité
-    localStorage.setItem('myStocks', JSON.stringify(myStocks));
-    fetchStocks();
-    e.target.reset();
-  } else if (!symbol || !name || isNaN(shares) || shares < 0) {
-    alert('Veuillez remplir le Symbole, le Nom, et une quantité valide.');
-  } else if (myStocks.find(s => s.symbol === symbol)) {
-    alert('Ce symbole est déjà dans votre liste.');
-  }
-});
-
-function deleteStock(symbolToDelete) {
-  myStocks = myStocks.filter(stock => stock.symbol !== symbolToDelete);
-  localStorage.setItem('myStocks', JSON.stringify(myStocks));
-  fetchStocks();
-}
-
-refreshButton.addEventListener('click', fetchStocks);
+// Références de la section actions mises à jour:
+let myStocks = [];
+function fetchStocks() { 
+    // Fonction vide car la section est supprimée
+} 
 
 
 // === NAVIGATION (Single Page Application - SPA) ===
@@ -511,7 +405,7 @@ function showSection(target) {
   } else if (target === 'comptes') {
     document.getElementById('section-comptes').style.display = 'block';
   } else if (target === 'actions') {
-    document.getElementById('section-actions').style.display = 'block';
+    // Si la section action était là, elle serait masquée, mais on la laisse juste au cas où.
   } else if (target === 'parametres') {
     document.getElementById('section-parametres').style.display = 'block';
   }
@@ -532,4 +426,4 @@ updateIncomeList();
 updateAccountList();
 updateAccountChart();
 updateAccountSelects();
-fetchStocks();
+// fetchStocks() n'est plus appelée
