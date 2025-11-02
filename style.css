@@ -289,15 +289,21 @@ body {
     flex-grow: 1;
     display: flex;
     flex-direction: column;
+    /* CORRECTION: Assurer que l'espace est bien utilisé verticalement */
+    min-width: 0; 
 }
 .transaction-details strong {
     font-weight: 600;
     color: #FFF;
+    white-space: nowrap; /* Empêche le saut de ligne sur le titre */
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 .transaction-details span {
     font-size: 12px;
     color: #B0B0B0;
-    /* CORRECTION: Autoriser les sauts de ligne pour éviter que [Livret A] ne dépasse */
+    /* CORRECTION: Permettre au texte de s'étendre sans couper le mot [Livret A] */
+    white-space: normal; 
     word-break: break-word; 
 }
 
@@ -497,7 +503,6 @@ canvas {
     box-shadow: 0 -5px 15px rgba(0,0,0,0.7);
     border-top: 1px solid #333;
     z-index: 200; 
-    /* Désactiver le défilement dans la barre d'onglets pour éviter le bug de l'underline */
     overflow-x: hidden; 
   }
 
@@ -538,7 +543,7 @@ canvas {
 
   .main {
     padding: 15px;
-    padding-bottom: 120px; /* GARANTIT l'espace pour le graphique au-dessus du menu fixe */
+    padding-bottom: 120px; /* Augmenter le padding-bottom pour dégager le graphique */
   }
   
   .header-main {
