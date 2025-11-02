@@ -512,13 +512,13 @@ function fetchStocks() {
 const navLinks = document.querySelectorAll('.sidebar li');
 
 function showSection(target) {
-  // 1. Masquer toutes les sections (CORRIGÉ: Ciblage plus large)
+  // 1. Masquer toutes les sections
   document.querySelectorAll('.main > section').forEach(el => {
     el.style.display = 'none';
   });
   document.querySelectorAll('.sidebar li').forEach(li => li.classList.remove('active'));
 
-  // 2. Afficher la section ciblée avec le bon display mode
+  // 2. Afficher la section ciblée avec le bon display mode (CORRIGÉ)
   const targetElement = document.getElementById(`section-${target}`);
   if (targetElement) {
       // Tableau de bord utilise flex pour l'organisation; les autres utilisent block.
