@@ -110,11 +110,13 @@ document.querySelectorAll('.action-item').forEach(item => {
         const action = e.currentTarget.dataset.action;
         if (action === 'add-money') {
             modalAddMoney.style.display = 'flex';
+            // Utiliser setTimeout pour forcer le focus (CORRIGÉ: Clavier iOS)
             setTimeout(() => {
                 document.getElementById('incomeAmount').focus(); 
             }, 0); 
         } else if (action === 'withdraw-money') {
             modalWithdrawMoney.style.display = 'flex';
+            // Utiliser setTimeout pour forcer le focus (CORRIGÉ: Clavier iOS)
             setTimeout(() => {
                 document.getElementById('amount').focus(); 
             }, 0);
@@ -145,7 +147,7 @@ document.getElementById('expenseForm').addEventListener('submit', (e) => {
   
   const selectedAccountName = document.getElementById('expenseAccount').value;
   const amountInput = document.getElementById('amount').value.trim();
-  const reason = document.getElementById('reason').value; 
+  const reason = document.getElementById('reason').value; // Récupère la valeur du sélecteur
   
   const amount = parseAmount(amountInput);
 
@@ -182,7 +184,7 @@ document.getElementById('incomeForm').addEventListener('submit', (e) => {
   
   const selectedAccountName = document.getElementById('incomeAccount').value;
   const amountInput = document.getElementById('incomeAmount').value.trim();
-  const reason = document.getElementById('incomeReason').value; 
+  const reason = document.getElementById('incomeReason').value; // Récupère la valeur du sélecteur
   
   const amount = parseAmount(amountInput);
   
@@ -212,20 +214,22 @@ document.getElementById('incomeForm').addEventListener('submit', (e) => {
   modalAddMoney.style.display = 'none'; // Ferme la modale
 });
 
-// === Mettre à jour la liste des transactions combinées (Tableau de bord) ===
+// === NOUVEAU: Mettre à jour la liste des transactions combinées (Tableau de bord) ===
 function updateCombinedTransactionList() {
     const combined = [
         ...expenses.map(t => ({ ...t, type: 'expense' })),
         ...incomes.map(t => ({ ...t, type: 'income' }))
     ];
     
+    // Trier par ID descendant (le plus récent en haut)
     combined.sort((a, b) => b.id - a.id); 
 
     const list = document.getElementById('combinedTransactionList');
     list.innerHTML = '';
 
+    // Afficher les 5 dernières transactions
     combined.slice(0, 5).forEach((t) => {
-        const isExpense = t.type === 'expense';
+        const isExpense = expenses.some(e => e.id === t.id); // Utiliser expenses.some pour vérifier si c'est une dépense
         const typeClass = isExpense ? 'expense' : 'income';
         
         const li = document.createElement('li');
@@ -305,9 +309,9 @@ function getIconColor(reason, isExpense) {
         case 'autres': 
             return '#4CD964'; // Vert pour revenus (y compris 'Autres')
         case 'nourriture':
-            return '#007AFF'; // Bleu
+            return '#007AFF'; // Bleu pour nourriture si ce n'est pas une dépense
         default: 
-            return '#8F7CF9'; // Violet par défaut
+            return '#8F7CF9'; // Violet par défaut pour autres revenus
     }
 }
 
