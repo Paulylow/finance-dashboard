@@ -509,50 +509,50 @@ function fetchStocks() {
 
 
 // === NAVIGATION (Single Page Application - SPA) ===
-const navLinks = document.querySelectorAll('.sidebar li');
-
 function showSection(target) {
-  // 1. Masquer tous les conteneurs de section et le graphique
-  // Nous ciblons TOUTES les sections ET le graphique canvas
+  // 1. Masquer toutes les sections et les canvas
   document.querySelectorAll('.main > section, .main > canvas').forEach(el => {
     el.style.display = 'none';
   });
-  document.querySelectorAll('.sidebar li').forEach(li => li.classList.remove('active'));
 
-  // 2. Afficher la section ciblée avec le bon display mode
+  // 2. Retirer la classe active de tous les éléments de navigation
+  document.querySelectorAll('.sidebar li, .bottom-nav li').forEach(li => li.classList.remove('active'));
+
+  // 3. Afficher la section ciblée
   const targetElement = document.getElementById(`section-${target}`);
-  
   if (targetElement) {
-      // Tableau de bord utilise flex pour l'organisation; les autres utilisent block.
       targetElement.style.display = (target === 'tableau') ? 'flex' : 'block'; 
   }
-  
-  // 3. Afficher les éléments spécifiques au Tableau de Bord (y compris le graphique)
+
+  // 4. Afficher les éléments spécifiques au tableau de bord
   if (target === 'tableau') {
       document.getElementById('balanceChart').style.display = 'block'; 
       updateCombinedTransactionList(); 
   }
-  
-  // 4. Mettre à jour l'état actif
-  const activeLink = document.querySelector(`.sidebar li[data-target="${target}"]`);
-  if(activeLink) {
+
+  // 5. Activer le lien correspondant
+  const activeLink = document.querySelector(`.sidebar li[data-target="${target}"], .bottom-nav li[data-target="${target}"]`);
+  if (activeLink) {
       activeLink.classList.add('active');
   }
-  
-  // 5. (Ré)initialisation spécifique si nécessaire
+
+  // 6. Actualiser l’historique si nécessaire
   if (target === 'historique') {
       updateHistory(); 
   }
 }
 
-navLinks.forEach(link => {
+// === Gestion des clics sur la sidebar et la barre du bas ===
+const allNavLinks = document.querySelectorAll('.sidebar li, .bottom-nav li');
+
+allNavLinks.forEach(link => {
   link.addEventListener('click', () => {
     const target = link.getAttribute('data-target');
     showSection(target);
   });
 });
 
-// NOUVEAU: Fonction pour forcer la fermeture des modales au démarrage
+// === Fonction pour forcer la fermeture des modales au démarrage ===
 function ensureModalsClosed() {
     document.getElementById('modal-add-money').style.display = 'none';
     document.getElementById('modal-withdraw-money').style.display = 'none';
@@ -560,7 +560,7 @@ function ensureModalsClosed() {
 
 // === Initialisation de l'affichage au chargement ===
 updateCombinedTransactionList();
-showSection('tableau'); // Démarrer sur le tableau de bord
+showSection('tableau'); // Démarre sur le tableau de bord
 updateAccountList();
 updateAccountChart();
 updateAccountSelects();
