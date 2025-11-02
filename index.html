@@ -20,7 +20,6 @@
     <ul>
       <li data-target="tableau">Tableau de bord</li>
       <li data-target="comptes">Comptes</li>
-      <li data-target="actions">Actions</li>
       <li data-target="parametres">Paramètres</li>
     </ul>
   </div>
@@ -106,22 +105,8 @@
       </div>
 
     </section>
-
     
-<section class="stocks-section" id="section-actions" style="display:none;">
-      <h2>📈 Mes actions</h2>
-      <form id="addStockForm">
-        <input type="text" id="stockSymbol" placeholder="Symbole (ex: AAPL)" required />
-        <input type="text" id="stockName" placeholder="Nom (ex: Apple)" required />
-        <input type="number" id="stockShares" placeholder="Quantité (ex: 10)" required />
-        <button type="submit">Ajouter Action</button>
-      </form>
-      <div id="stockList" class="card-list"></div>
-      <button id="refreshStocks" class="refresh-button">🔄 Actualiser</button>
-    </section>
-
-    
-<section class="accounts-section" id="section-comptes" style="display:none;">
+    <section class="accounts-section" id="section-comptes" style="display:none;">
       <h2>💳 Répartition des Comptes</h2>
       <form id="addAccountForm">
         <input type="text" id="accountName" placeholder="Nom du Compte (ex: Livret A)" required />
