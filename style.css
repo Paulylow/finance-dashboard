@@ -406,7 +406,6 @@ canvas {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     gap: 10px;
-    /* CORRECTION: Grosse marge pour séparer la liste des comptes */
     margin-bottom: 30px; 
 }
 #addAccountForm input {
@@ -426,7 +425,6 @@ canvas {
     padding: 12px 15px;
     background: #2b2b2b;
     border-radius: 10px;
-    /* CORRECTION: Marge réduite entre les éléments de la liste */
     margin-bottom: 5px; 
     font-size: 16px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
@@ -508,8 +506,7 @@ canvas {
 
   .main {
     padding: 15px;
-    /* CORRECTION: Augmenter le padding-bottom pour éviter que le graphique ne se cache derrière le menu */
-    padding-bottom: 100px; 
+    padding-bottom: 100px; /* CORRECTION: Augmenter le padding-bottom pour le graphique */
   }
   
   .header-main {
@@ -567,8 +564,7 @@ canvas {
   }
   #addAccountForm input:first-child {
       grid-column: 1 / span 2; /* Nom du compte prend toute la largeur */
-      /* CORRECTION: Espace entre le Nom et le Solde */
-      margin-bottom: 10px; 
+      margin-bottom: 10px; /* Espace entre le Nom et le Solde */
   }
   #addAccountForm button {
       grid-column: 2 / span 1; /* Le bouton à droite */
