@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Mon Tableau de Bord Financier</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <link rel="manifest" href="manifest.webmanifest"> 
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FinanceApp">
+  <link rel="apple-touch-icon" href="icon-192x192.png"> <meta name="theme-color" content="#1f003b">
+</head>
+<body>
+  <div class="sidebar">
+    <h2>💰 Finance</h2>
+    <ul>
+      <li data-target="tableau">🏠 Tableau</li>
+      <li data-target="comptes">💳 Comptes</li>
+      <li data-target="actions">📈 Actions</li>
+      <li data-target="parametres">⚙️ Paramètres</li>
+    </ul>
+  </div>
+
+  <div class="main">
+    <header>
+      <h1>Tableau de bord</h1>
+    </header>
+
+    <section class="cards" id="section-tableau">
+      <div class="card balance">
+        <h3>Solde Total</h3>
+        <p id="totalBalance">€12 450,00</p>
+      </div>
+      <div class="card expenses">
+        <p>Dépenses Total</p>
+        <h4 id="expenses">€0</h4>
+      </div>
+      <div class="card income">
+        <p>Revenus Total</p>
+        <h4 id="income">€0</h4>
+      </div>
+    </section>
+
+    <canvas id="balanceChart" class="chart-section"></canvas>
+
+    <section class="transactions" id="section-transactions">
+      <div class="form-section">
+        <h2>➖ Dépenses</h2>
+        <form id="expenseForm">
+          <select id="expenseAccount" required>
+            <option value="">Choisir un compte pour la dépense</option>
+          </select>
+          <input type="text" id="amount" placeholder="Montant (€) ex: 102,50" required />
+          <input type="text" id="reason" placeholder="Motif (ex: Essence)" required />
+          <button type="submit">Ajouter</button>
+        </form>
+        <ul id="expenseList"></ul>
+      </div>
+
+      <div class="form-section">
+        <h2>➕ Revenus</h2>
+        <form id="incomeForm">
+          <select id="incomeAccount" required>
+            <option value="">Choisir un compte pour le revenu</option>
+          </select>
+          <input type="text" id="incomeAmount" placeholder="Montant (€) ex: 500,50" required />
+          <input type="text" id="incomeReason" placeholder="Motif (ex: Salaire)" required />
+          <button type="submit">Ajouter</button>
+        </form>
+        <ul id="incomeList"></ul>
+      </div>
+    </section>
+
+    <section class="stocks" id="section-actions" style="display:none;">
+      <h2>📈 Mes actions</h2>
+      <form id="addStockForm">
+        <input type="text" id="stockSymbol" placeholder="Symbole (ex: AAPL)" required />
+        <input type="text" id="stockName" placeholder="Nom (ex: Apple)" required />
+        <button type="submit">Ajouter Action</button>
+      </form>
+      <div id="stockList"></div>
+      <button id="refreshStocks">🔄 Actualiser</button>
+    </section>
+
+    <section class="accounts" id="section-comptes" style="display:none;">
+      <h2>💳 Répartition des Comptes</h2>
+      <form id="addAccountForm">
+        <input type="text" id="accountName" placeholder="Nom du Compte (ex: Livret A)" required />
+        <input type="text" id="accountBalance" placeholder="Solde Initial (€) ex: 1500,00" required />
+        <button type="submit">Ajouter Compte</button>
+      </form>
+      <div id="accountList"></div>
+      <canvas id="accountChart" class="chart-section"></canvas>
+    </section>
+    
+    <section id="section-parametres" style="display:none; padding:20px;">
+      <h2>⚙️ Paramètres</h2>
+      <p>Ici, vous pourriez ajouter des options de réinitialisation des données ou de configuration de l'API.</p>
+      <button onclick="localStorage.clear(); location.reload();" style="background:red;">🚨 Réinitialiser toutes les données</button>
+    </section>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
