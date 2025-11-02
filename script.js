@@ -382,9 +382,6 @@ function updateAccountChart() {
 
 
 // === ACTIONS (SUPPRIMÉES) ===
-// Code de la section Actions supprimé pour simplifier l'application.
-
-// Références de la section actions mises à jour:
 let myStocks = [];
 function fetchStocks() { 
     // Fonction vide car la section est supprimée
@@ -404,8 +401,6 @@ function showSection(target) {
     document.getElementById('section-tableau').style.display = 'flex'; 
   } else if (target === 'comptes') {
     document.getElementById('section-comptes').style.display = 'block';
-  } else if (target === 'actions') {
-    // Si la section action était là, elle serait masquée, mais on la laisse juste au cas où.
   } else if (target === 'parametres') {
     document.getElementById('section-parametres').style.display = 'block';
   }
