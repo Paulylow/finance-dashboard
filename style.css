@@ -383,7 +383,9 @@ canvas {
     text-align: center;
 }
 
-/* Sections pour Comptes et Paramètres */
+/* ------------------ */
+/* -- SECTION COMPTES -- */
+/* ------------------ */
 .accounts-section, #section-parametres {
     background: #1C1C1E;
     border-radius: 18px;
@@ -404,14 +406,15 @@ canvas {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     gap: 10px;
-    margin-bottom: 20px;
+    /* CORRECTION: Grosse marge pour séparer la liste des comptes */
+    margin-bottom: 30px; 
 }
 #addAccountForm input {
     background: #2b2b2b;
     border: 1px solid #444;
 }
 #addAccountForm button {
-    grid-column: 3 / span 1; /* Aligner le bouton sur la troisième colonne */
+    grid-column: 3 / span 1;
     padding: 12px 10px;
 }
 
@@ -423,7 +426,8 @@ canvas {
     padding: 12px 15px;
     background: #2b2b2b;
     border-radius: 10px;
-    margin-bottom: 8px;
+    /* CORRECTION: Marge réduite entre les éléments de la liste */
+    margin-bottom: 5px; 
     font-size: 16px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     font-weight: 500;
@@ -434,10 +438,10 @@ canvas {
 }
 .card-list div span:last-child {
     font-weight: 600;
-    color: #4CD964; /* Couleur d'accent pour le montant */
+    color: #4CD964;
 }
 .card-list button {
-    background: #FF5F6D; /* Bouton de suppression rouge */
+    background: #FF5F6D;
     color: white;
     padding: 4px 8px;
     font-weight: normal;
@@ -558,13 +562,16 @@ canvas {
   /* Formulaire d'ajout de compte mobile: deux lignes */
   #addAccountForm {
       grid-template-columns: 1fr 1fr; /* Deux colonnes */
+      margin-bottom: 30px; /* Marge pour séparer la liste */
   }
   #addAccountForm input:first-child {
       grid-column: 1 / span 2; /* Nom du compte prend toute la largeur */
+      margin-bottom: 10px; /* Espace entre le Nom et le Solde */
   }
   #addAccountForm button {
       grid-column: 2 / span 1; /* Le bouton à droite */
   }
+  
   .card-list div {
       padding: 10px;
       font-size: 15px;
