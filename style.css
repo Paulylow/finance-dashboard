@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
 
 * {
   box-sizing: border-box;
@@ -19,6 +19,8 @@ body {
   background: rgba(255,255,255,0.05);
   backdrop-filter: blur(10px);
   padding: 20px;
+  /* Nouveau: Pour que la barre latérale mobile soit au-dessus du contenu */
+  z-index: 100; 
 }
 
 .sidebar h2 {
@@ -34,6 +36,7 @@ body {
   margin: 15px 0;
   cursor: pointer;
   transition: color 0.3s;
+  font-weight: 600; /* Bolder */
 }
 
 .sidebar li:hover {
@@ -76,7 +79,10 @@ header {
   transform: scale(1.03);
 }
 
-.balance { background: linear-gradient(135deg, #667eea, #764ba2); }
+.balance { 
+  background: linear-gradient(135deg, #667eea, #764ba2); 
+  font-weight: bold; /* Plus d'emphase sur le solde */
+}
 .expenses { color: #ff5f6d; }
 .income { color: #4cd964; }
 
@@ -88,12 +94,11 @@ canvas {
   width: 100%;
 }
 
-/* S'assurer que les canvas restent lisibles */
 #balanceChart {
   max-height: 250px;
 }
 #accountChart {
-  max-height: 350px; /* Un peu plus grand pour le camembert */
+  max-height: 350px; 
 }
 
 .transactions {
@@ -117,7 +122,7 @@ form {
   gap: 10px;
 }
 
-input, select { /* Ajout de 'select' */
+input, select { 
   padding: 10px;
   border-radius: 8px;
   border: none;
@@ -126,7 +131,6 @@ input, select { /* Ajout de 'select' */
   color: white;
 }
 
-/* Rendre le texte des options visible dans les select */
 select option {
     color: #000; 
 }
@@ -151,7 +155,7 @@ button:hover {
     padding: 5px 8px;
     margin-left: 10px;
     font-size: 12px;
-    transform: none; /* Annuler le scale pour les petits boutons */
+    transform: none; 
     border-radius: 5px;
     font-weight: normal;
 }
@@ -171,7 +175,8 @@ li {
   border-radius: 8px;
   display: flex;
   justify-content: space-between;
-  align-items: center; /* Centrer verticalement le bouton X */
+  align-items: center; 
+  font-size: 15px; /* Légèrement plus grand */
 }
 
 .stocks, .accounts {
@@ -191,42 +196,87 @@ li {
   align-items: center;
 }
 
-/* === RESPONSIVE MOBILE === */
+/* ======================================= */
+/* === RESPONSIVE MOBILE AMÉLIORÉ (iPhone) === */
+/* ======================================= */
 @media (max-width: 768px) {
   body {
     flex-direction: column;
     background: linear-gradient(135deg, #2b005a, #1f003b);
   }
 
+  /* Bar Lateral / Menu en Bas */
   .sidebar {
     width: 100%;
-    display: flex;
-    justify-content: space-around;
+    /* Nouveau: Fixer le menu en bas */
+    position: fixed;
+    bottom: 0;
+    left: 0;
     padding: 10px 0;
+    box-shadow: 0 -5px 10px rgba(0,0,0,0.3);
   }
 
   .sidebar h2 { display: none; }
 
   .sidebar ul {
     display: flex;
-    gap: 15px;
+    justify-content: space-around;
+    gap: 0;
   }
+  
+  /* Rendre les boutons de navigation plus clairs */
+  .sidebar li {
+    flex: 1;
+    text-align: center;
+    margin: 0;
+    padding: 5px 0;
+    font-size: 11px; /* Texte plus petit */
+    white-space: nowrap;
+  }
+  
+  /* Séparer les icônes du texte */
+  .sidebar li::before {
+    content: attr(data-target); /* Utilisation de data-target ou simplement l'icône */
+    display: block;
+    font-size: 18px;
+    margin-bottom: 3px;
+  }
+  
+  /* Cacher le texte par défaut et utiliser les emojis (index.html gère les emojis) */
+  .sidebar li {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  /* Pour cacher le label "Tableau" et ne laisser que l'icône, le code JS ou HTML doit être ajusté pour les mobiles. On utilise ici uniquement le style des listes. */
 
   .main {
     padding: 15px;
+    /* Espace en bas pour le menu fixe */
+    padding-bottom: 70px; 
+  }
+  
+  header h1 {
+    font-size: 24px;
+    margin-top: 10px;
   }
 
   .cards {
     flex-direction: column;
     gap: 15px;
   }
+  
+  /* Cartes: Texte plus grand pour la lisibilité */
+  .card h3 { font-size: 18px; }
+  .card p#totalBalance { font-size: 28px; font-weight: 700; }
+  .card h4 { font-size: 22px; }
 
   .transactions {
     flex-direction: column;
   }
 
   canvas {
-    max-height: 180px;
+    max-height: 200px;
   }
 
   li {
