@@ -20,6 +20,7 @@
     <ul>
       <li data-target="tableau">Tableau de bord</li>
       <li data-target="comptes">Comptes</li>
+      <li data-target="historique">Archives</li>
       <li data-target="parametres">Paramètres</li>
     </ul>
   </div>
@@ -74,7 +75,13 @@
               <option value="">Choisir un compte pour le revenu</option>
             </select>
             <input type="text" id="incomeAmount" placeholder="Montant (€) ex: 500,50" required />
-            <input type="text" id="incomeReason" placeholder="Motif (ex: Salaire)" required />
+            <select id="incomeReason" required>
+                <option value="">Choisir le motif</option>
+                <option value="Salaire">Salaire</option>
+                <option value="Anniversaire">Anniversaire</option>
+                <option value="Prime">Prime</option>
+                <option value="Autres">Autres</option>
+            </select>
             <button type="submit">Ajouter</button>
           </form>
         </div>
@@ -90,7 +97,15 @@
               <option value="">Choisir un compte pour la dépense</option>
             </select>
             <input type="text" id="amount" placeholder="Montant (€) ex: 102,50" required />
-            <input type="text" id="reason" placeholder="Motif (ex: Essence)" required />
+            <select id="reason" required>
+                <option value="">Choisir le motif</option>
+                <option value="Voiture">Voiture</option>
+                <option value="Nourriture">Nourriture</option>
+                <option value="Transport">Transport</option>
+                <option value="Téléphone">Téléphone</option>
+                <option value="Sport">Sport</option>
+                <option value="Autres">Autres</option>
+            </select>
             <button type="submit">Ajouter</button>
           </form>
         </div>
@@ -98,6 +113,25 @@
 
     </section>
     
+<section class="history-section" id="section-historique" style="display:none;">
+    <h2>⏳ Récapitulatif Mensuel</h2>
+    <select id="monthSelector" class="select-full-width"></select>
+    
+    <div class="history-summary">
+        <div class="card expenses">
+            <p>Dépenses du mois</p>
+            <h4 id="historyTotalExpenses">€0</h4>
+        </div>
+        <div class="card income">
+            <p>Revenus du mois</p>
+            <h4 id="historyTotalIncomes">€0</h4>
+        </div>
+    </div>
+
+    <h3>Historique des transactions</h3>
+    <ul id="historyTransactionList" class="transaction-list"></ul>
+</section>
+
 <section class="accounts-section" id="section-comptes" style="display:none;">
       <h2>💳 Répartition des Comptes</h2>
       <form id="addAccountForm">
