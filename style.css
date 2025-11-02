@@ -361,6 +361,8 @@ canvas {
     height: 100%; /* Full height */
     overflow: auto; /* Enable scroll if needed */
     background-color: rgba(0,0,0,0.8); /* Black w/ opacity */
+    display: flex;
+    align-items: center;
     justify-content: center;
 }
 
@@ -534,27 +536,6 @@ canvas {
       width: 45px;
       height: 45px;
       font-size: 20px;
-  }
-
-  /* Transactions mobiles */
-  .transactions-summary {
-      padding: 15px;
-  }
-  .transactions-summary h2 {
-      font-size: 16px;
-  }
-  .transaction-list li {
-      padding: 10px 0;
-      font-size: 14px;
-  }
-  .transaction-icon {
-      width: 35px;
-      height: 35px;
-      font-size: 16px;
-      border-radius: 10px;
-  }
-  .transaction-amount {
-      font-size: 15px;
   }
 
   /* Modales mobiles */
