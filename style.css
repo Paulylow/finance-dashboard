@@ -611,3 +611,31 @@ canvas {
       font-size: 15px;
   }
 }
+
+/* === Forcer [Livret A] à aller à la ligne dans les transactions === */
+.transaction-item div:has(span),
+.transaction-item p:has(span),
+.transaction-item:has(span) {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  white-space: normal;
+  word-wrap: break-word;
+}
+
+/* Le [Livret A] (ou tout ce qui est dans un span) passe à la ligne */
+.transaction-item span {
+  display: block;
+  margin-top: 2px;
+  color: #b3b3b3;
+  font-size: 0.9em;
+  opacity: 0.85;
+  word-break: break-word;
+}
+
+/* Optionnel : meilleure lisibilité sur les montants longs */
+.transaction-amount {
+  max-width: 100%;
+  word-break: break-all;
+}
+
