@@ -235,7 +235,8 @@ function updateCombinedTransactionList() {
             <div class="transaction-icon" style="background:${getIconColor(t.reason, isExpense)};">${getIcon(t.reason)}</div>
             <div class="transaction-details">
                 <strong>${t.reason}</strong>
-                <span>${t.time} - ${t.date}</span>  <span class="account-name-detail">[${t.account}]</span> </div>
+                <span>${t.time} - ${t.date} [${t.account}]</span>
+            </div>
             <span class="transaction-amount ${typeClass}">
                 ${isExpense ? '-€' : '+€'}${t.amount.toFixed(2)}
             </span>
@@ -484,8 +485,7 @@ function updateHistory() {
             <div class="transaction-icon" style="background:${getIconColor(t.reason, isExpense)};">${getIcon(t.reason)}</div>
             <div class="transaction-details">
                 <strong>${t.reason}</strong>
-                <span>${t.time} - ${t.date}</span>
-                <span class="account-name-detail">[${t.account}]</span>
+                <span>${t.time} - ${t.date} [${t.account}]</span>
             </div>
             <span class="transaction-amount ${typeClass}">
                 ${isExpense ? '-€' : '+€'}${t.amount.toFixed(2)}
