@@ -301,10 +301,23 @@ body {
 .transaction-details span {
     font-size: 12px;
     color: #B0B0B0;
-    white-space: normal; 
-    word-break: break-word; 
+    white-space: nowrap; /* Assure que la date/heure ne saute pas de ligne */
+    overflow: hidden;
+    text-overflow: ellipsis;
     max-width: 100%; 
 }
+
+/* CORRECTION POUR LE NOM DU COMPTE : Force le saut de ligne */
+.transaction-details .account-name-detail {
+    display: block; /* Force le saut de ligne */
+    font-size: 11px; /* Légèrement plus petit pour le compte */
+    color: #B0B0B0;
+    margin-top: 2px; /* Petite marge pour séparer de la date */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 
 /* Forcer le signe et le montant sur une seule ligne */
 .transaction-amount {
@@ -326,6 +339,7 @@ input, select {
   color: #E0E0E0;
   font-size: 14px;
   transition: border-color 0.2s;
+  width: 100%; /* Assure que les inputs prennent toute la largeur du conteneur */
 }
 
 input:focus, select:focus {
@@ -418,6 +432,13 @@ canvas {
     color: #8F7CF9;
     margin-bottom: 20px;
     text-align: center;
+}
+
+/* NOUVELLE RÈGLE : Espacement des champs dans les formulaires modales */
+#incomeForm, #expenseForm {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Espace de 15px entre chaque champ/bouton */
 }
 
 /* Sections pour Comptes et Paramètres */
@@ -611,5 +632,3 @@ canvas {
       font-size: 15px;
   }
 }
-
-
