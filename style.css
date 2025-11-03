@@ -301,25 +301,10 @@ body {
 .transaction-details span {
     font-size: 12px;
     color: #B0B0B0;
-    /* white-space: normal;  Nous allons utiliser nowrap pour la date/heure */
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    white-space: normal; 
     word-break: break-word; 
     max-width: 100%; 
 }
-
-/* NOUVEAU STYLE : Force le nom du compte à la ligne */
-.transaction-details .account-name-detail {
-    display: block; /* Force le saut de ligne */
-    font-size: 11px; /* Légèrement plus petit pour le compte */
-    color: #B0B0B0;
-    margin-top: 2px; /* Petite marge pour séparer de la date */
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
 
 /* Forcer le signe et le montant sur une seule ligne */
 .transaction-amount {
@@ -626,3 +611,5 @@ canvas {
       font-size: 15px;
   }
 }
+
+
