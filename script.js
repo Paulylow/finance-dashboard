@@ -235,8 +235,7 @@ function updateCombinedTransactionList() {
             <div class="transaction-icon" style="background:${getIconColor(t.reason, isExpense)};">${getIcon(t.reason)}</div>
             <div class="transaction-details">
                 <strong>${t.reason}</strong>
-                <span>${t.time} - ${t.date} [${t.account}]</span>
-            </div>
+                <span>${t.time} - ${t.date}</span>  <span class="account-name-detail">[${t.account}]</span> </div>
             <span class="transaction-amount ${typeClass}">
                 ${isExpense ? '-€' : '+€'}${t.amount.toFixed(2)}
             </span>
@@ -316,7 +315,7 @@ function getIconColor(reason, isExpense) {
 
 // === GESTION DES COMPTES (PIE CHART) ===
 const accountCtx = document.getElementById('accountChart').getContext('2d');
-let accountChart = new Chart(accountCtx, { // CORRECTION: Utiliser accountCtx pour le graphique des comptes
+let accountChart = new Chart(accountCtx, { 
   type: 'pie',
   data: {
     labels: [],
@@ -485,7 +484,8 @@ function updateHistory() {
             <div class="transaction-icon" style="background:${getIconColor(t.reason, isExpense)};">${getIcon(t.reason)}</div>
             <div class="transaction-details">
                 <strong>${t.reason}</strong>
-                <span>${t.time} - ${t.date} [${t.account}]</span>
+                <span>${t.time} - ${t.date}</span>
+                <span class="account-name-detail">[${t.account}]</span>
             </div>
             <span class="transaction-amount ${typeClass}">
                 ${isExpense ? '-€' : '+€'}${t.amount.toFixed(2)}
