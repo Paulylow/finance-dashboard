@@ -1,13 +1,14 @@
 // === Données initiales ===
-// Structure de compte modifiée : { name: 'Nom', balance: 0, history: [{date: 'jj/mm/aaaa', value: 0}] }
+// Structure de compte : { name: 'Nom', balance: 0, history: [{date: 'jj/mm/aaaa', value: 0}] }
 let accounts = JSON.parse(localStorage.getItem('accounts')) || [];
 let totalBalance = accounts.reduce((sum, acc) => sum + acc.balance, 0); 
 
 document.getElementById('totalBalance').textContent = `€${totalBalance.toLocaleString('fr-FR', { minimumFractionDigits: 2 })}`;
 
-// Nettoyage des anciennes données qui ne sont plus utilisées
+// Nettoyage des anciennes données
 localStorage.removeItem('expenses');
 localStorage.removeItem('incomes');
+
 
 // === FONCTION UTILITAIRE : Gérer la Virgule et la Conversion en Nombre ===
 function parseAmount(input) {
@@ -26,18 +27,32 @@ function formatDate(date) {
 
 // === FONCTION UTILITAIRE : Calculer l'évolution (Gain/Perte et %) ===
 function calculateEvolution(account) {
-    const history = account.history.sort((a, b) => new Date(a.date) - new Date(b.date)); // S'assurer que c'est trié par date
+    // 1. Trier l'historique par date (du plus ancien au plus récent)
+    const history = account.history.sort((a, b) => {
+        // Convertir le format jj/mm/aaaa en Date pour une comparaison fiable
+        const parseDate = (dateStr) => {
+             // Assurez-vous que le format est YYYY-MM-DD pour le constructeur Date
+             const parts = dateStr.split('/');
+             return new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+        };
+        const dateA = parseDate(a.date);
+        const dateB = parseDate(b.date);
+        return dateA - dateB;
+    });
     
+    // Si moins de deux points de données, impossible de calculer l'évolution
     if (history.length < 2) {
         return { change: 0, percentage: 0, fromDate: null };
     }
     
+    // 2. Prendre les deux dernières entrées
     const latestEntry = history[history.length - 1];
     const previousEntry = history[history.length - 2];
 
     const latestValue = latestEntry.value;
     const previousValue = previousEntry.value;
 
+    // 3. Calcul
     const change = latestValue - previousValue;
     const percentage = previousValue === 0 ? 0 : (change / previousValue) * 100;
     
@@ -51,12 +66,14 @@ function calculateEvolution(account) {
 
 // === GESTION DES MODALES (Mise à jour) ===
 const modalUpdateAccount = document.getElementById('modal-update-account');
+// On cherche la modale dans le DOM
 const closeButtons = document.querySelectorAll('.close-button');
+
 
 // Ouvrir la modale (via les boutons de la carte principale et l'action rapide)
 document.querySelectorAll('.update-btn').forEach(item => {
     item.addEventListener('click', () => {
-        updateAccountSelectForUpdate(); // S'assure que la liste est à jour
+        updateAccountSelectForUpdate();
         modalUpdateAccount.style.display = 'flex';
         // Règle la date du jour par défaut
         document.getElementById('updateDate').valueAsDate = new Date(); 
@@ -121,9 +138,6 @@ document.getElementById('updateAccountForm').addEventListener('submit', (e) => {
             account.history.push({ date: formattedDate, value: newBalance }); // Ajout
         }
         
-        // Trier l'historique par date
-        account.history.sort((a, b) => new Date(a.date.split('/').reverse().join('-')) - new Date(b.date.split('/').reverse().join('-')));
-
         localStorage.setItem('accounts', JSON.stringify(accounts));
         
         updateAccountChart();
@@ -200,12 +214,18 @@ function updateAccountList() {
   }
   accounts.forEach((acc) => {
     const div = document.createElement('div');
+    div.className = 'account-item-card';
     
     const evolution = calculateEvolution(acc);
     const evolutionClass = evolution.change >= 0 ? 'income' : 'expense';
     const evolutionSign = evolution.change >= 0 ? '+' : '';
+    
+    // Formatage des chiffres pour l'affichage (Utilisation de Math.abs pour le pourcentage)
+    const formattedChange = Math.abs(evolution.change).toLocaleString('fr-FR', { minimumFractionDigits: 2 });
+    const formattedPercentage = Math.abs(evolution.percentage).toLocaleString('fr-FR', { minimumFractionDigits: 2 });
+
     const evolutionText = evolution.fromDate ? 
-        `(${evolutionSign}€${evolution.change.toFixed(2)} / ${evolutionSign}${evolution.percentage.toFixed(2)}% depuis ${evolution.fromDate})` : 
+        `(${evolutionSign}€${formattedChange} / ${evolutionSign}${formattedPercentage}% depuis ${evolution.fromDate})` : 
         '(Historique insuffisant)';
     
     const deleteBtn = document.createElement('button');
@@ -214,15 +234,16 @@ function updateAccountList() {
     deleteBtn.onclick = () => deleteAccount(acc.name);
     
     div.innerHTML = `
-        <div>
+        <div class="account-details">
             <strong>${acc.name}</strong>
             <span class="evolution-detail ${evolutionClass}">${evolutionText}</span>
         </div>
-        <div class="balance-and-actions">
-            <span>€${acc.balance.toLocaleString('fr-FR', { minimumFractionDigits: 2 })}</span>
-            </div>
+        <div class="account-balance-area">
+            <span class="account-balance">€${acc.balance.toLocaleString('fr-FR', { minimumFractionDigits: 2 })}</span>
+        </div>
     `;
-    div.querySelector('.balance-and-actions').appendChild(deleteBtn);
+    // On ajoute le bouton X à la zone de solde pour l'alignement
+    div.querySelector('.account-balance-area').appendChild(deleteBtn);
     list.appendChild(div);
   });
 }
@@ -241,7 +262,7 @@ function updateAccountChart() {
 
 // === Graphique dynamique du solde Total (Ligne - Suivi Agrégé) ===
 const evolutionCtx = document.getElementById('evolutionChart').getContext('2d');
-let evolutionChart; // Déclaré pour être initialisé plus tard
+let evolutionChart;
 
 function aggregateTotalPortfolioHistory() {
     let combinedHistory = [];
@@ -249,7 +270,7 @@ function aggregateTotalPortfolioHistory() {
     // 1. Combiner tous les historiques de compte
     accounts.forEach(acc => {
         acc.history.forEach(entry => {
-            combinedHistory.push({ ...entry, date: entry.date }); // Date est déjà au format jj/mm/aaaa
+            combinedHistory.push({ date: entry.date, value: entry.value });
         });
     });
 
@@ -266,34 +287,35 @@ function aggregateTotalPortfolioHistory() {
         value: aggregated[dateKey]
     }));
 
-    // Trier par date pour le graphique
+    // Trier par date
     totalPortfolioHistory.sort((a, b) => {
-        const dateA = new Date(a.date.split('/').reverse().join('-'));
-        const dateB = new Date(b.date.split('/').reverse().join('-'));
-        return dateA - dateB;
+        const parseDate = (dateStr) => {
+             const parts = dateStr.split('/');
+             return new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+        };
+        return parseDate(a.date) - parseDate(b.date);
     });
 
-    // 4. Lisser les données (garder la valeur la plus récente si plusieurs mises à jour le même jour)
+    // 4. Lisser les données pour un solde total progressif (remplir les trous)
     const finalHistory = [];
+    let lastValue = 0;
+    
     totalPortfolioHistory.forEach(entry => {
         if (finalHistory.length > 0) {
-            // S'assurer que chaque entrée suivante est au moins égale à la précédente
-            // Pour afficher une courbe de solde progressif
+            // Si la même date apparaît, on garde la dernière valeur agrégée
             const lastEntry = finalHistory[finalHistory.length - 1];
-            if (new Date(entry.date.split('/').reverse().join('-')) > new Date(lastEntry.date.split('/').reverse().join('-'))) {
-                 finalHistory.push(entry);
-            } else if (entry.value !== lastEntry.value) {
-                // Si la date est la même (ou plus ancienne, ce qui ne devrait pas arriver après le tri), 
-                // mettez à jour la dernière entrée
-                lastEntry.value = entry.value; 
+            if (lastEntry.date === entry.date) {
+                lastEntry.value = entry.value;
+            } else {
+                finalHistory.push(entry);
             }
         } else {
             finalHistory.push(entry);
         }
     });
 
-    // 5. Gérer les données manquantes (remplir avec la valeur précédente)
-    // Ce n'est pas nécessaire pour un simple affichage des points de mise à jour. 
+    // 5. Mettre à jour la valeur "lastValue" après lissage, pour le graphique de solde
+    // (Pas de remplissage des trous nécessaire pour un graphique de type "point de mise à jour")
     
     return {
         labels: finalHistory.map(item => item.date),
@@ -312,7 +334,7 @@ function initEvolutionChart() {
         datasets: [{
           label: 'Patrimoine Total (€)',
           data: aggregated.data,
-          borderColor: '#4CD964', // Couleur verte pour le patrimoine
+          borderColor: '#4CD964',
           backgroundColor: 'rgba(76, 217, 100, 0.2)',
           fill: true,
           tension: 0.3
@@ -330,6 +352,7 @@ function initEvolutionChart() {
 }
 
 function updateChart() {
+    // Si le graphique n'est pas encore initialisé, on l'initialise
     if (!evolutionChart) {
         initEvolutionChart();
     }
@@ -362,7 +385,7 @@ function showSection(target) {
   }
 
   // 4. Afficher les éléments spécifiques
-  if (target === 'historique') {
+  if (target === 'tableau' || target === 'historique') {
       document.getElementById('evolutionChart').style.display = 'block'; 
       updateChart();
   }
