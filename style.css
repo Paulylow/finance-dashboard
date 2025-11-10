@@ -53,9 +53,9 @@ body {
     font-size: 18px;
     line-height: 1; /* Aligner */
 }
-.sidebar li[data-target="tableau"]::before { content: '🏠'; }
+.sidebar li[data-target="tableau"]::before { content: '📊'; } /* Changement d'icône */
 .sidebar li[data-target="comptes"]::before { content: '💳'; }
-.sidebar li[data-target="historique"]::before { content: '⏳'; }
+.sidebar li[data-target="historique"]::before { content: '📈'; } /* Changement d'icône */
 
 
 .sidebar li:hover {
@@ -209,15 +209,15 @@ body {
     text-align: center;
 }
 
-/* Transactions récentes / Historique */
-.transactions-summary, .history-section {
+/* Transactions récentes / Historique (Simplifié) */
+.history-section {
     margin-top: 30px;
     background: #1C1C1E;
     border-radius: 18px;
     padding: 20px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
-.transactions-summary h2, .history-section h2 {
+.history-section h2 {
     font-size: 18px;
     color: #E0E0E0;
     margin-bottom: 15px;
@@ -230,104 +230,6 @@ body {
     margin-top: 20px;
     margin-bottom: 5px;
 }
-.history-summary {
-    display: flex;
-    gap: 10px;
-    margin-top: 15px; 
-    margin-bottom: 25px; 
-}
-.history-summary .card {
-    flex: 1;
-    background: #2b2b2b;
-    border-radius: 10px;
-    padding: 10px;
-    text-align: center;
-}
-.history-summary p {
-    font-size: 13px;
-    color: rgba(255,255,255,0.7);
-}
-.history-summary h4 {
-    font-size: 20px;
-    font-weight: 600;
-}
-
-
-.transaction-list {
-    list-style: none;
-    padding: 0;
-    margin-top: 0;
-    max-height: 250px;
-    overflow-y: auto;
-}
-
-.transaction-list li {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    padding: 12px 0;
-    border-bottom: 1px solid #2b2b2b;
-    font-size: 15px;
-}
-.transaction-list li:last-child {
-    border-bottom: none;
-}
-
-.transaction-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 12px;
-    background: #2b2b2b;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 18px;
-    color: #FFF; /* Couleur de l'emoji est blanche, le fond change */
-}
-
-.transaction-details {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    min-width: 0; 
-}
-.transaction-details strong {
-    font-weight: 600;
-    color: #FFF;
-    white-space: nowrap; /* Empêche le saut de ligne sur le titre */
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-.transaction-details span {
-    font-size: 12px;
-    color: #B0B0B0;
-    white-space: nowrap; /* Assure que la date/heure ne saute pas de ligne */
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 100%; 
-}
-
-/* CORRECTION POUR LE NOM DU COMPTE : Force le saut de ligne */
-.transaction-details .account-name-detail {
-    display: block; /* Force le saut de ligne */
-    font-size: 11px; /* Légèrement plus petit pour le compte */
-    color: #B0B0B0;
-    margin-top: 2px; /* Petite marge pour séparer de la date */
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-
-/* Forcer le signe et le montant sur une seule ligne */
-.transaction-amount {
-    font-weight: 600;
-    font-size: 16px;
-    white-space: nowrap; /* Empêche le saut de ligne */
-}
-.transaction-amount.expense { color: #FF5F6D; }
-.transaction-amount.income { color: #4CD964; }
-
 
 /* Formulaires et Boutons généraux */
 input, select { 
@@ -362,21 +264,6 @@ button {
 button:hover {
   transform: scale(1.02);
 }
-
-#expenseList button, #incomeList button, #accountList button {
-    background: #444;
-    color: #E0E0E0;
-    font-weight: normal;
-    padding: 6px 10px;
-    font-size: 12px;
-    border-radius: 6px;
-    margin-left: 10px;
-}
-#expenseList button:hover, #incomeList button:hover, #accountList button:hover {
-    background: #666;
-    transform: none;
-}
-
 
 /* Charts */
 canvas {
@@ -435,26 +322,31 @@ canvas {
 }
 
 /* NOUVELLE RÈGLE : Espacement des champs dans les formulaires modales */
-#incomeForm, #expenseForm {
+#updateAccountForm {
     display: flex;
     flex-direction: column;
     gap: 15px; /* Espace de 15px entre chaque champ/bouton */
 }
 
 /* Sections pour Comptes et Paramètres */
-.accounts-section, #section-parametres {
+.accounts-section {
     background: #1C1C1E;
     border-radius: 18px;
     padding: 25px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     margin-top: 20px;
 }
-.accounts-section h2, #section-parametres h2 {
+.accounts-section h2, .accounts-section h3 {
     color: #8F7CF9;
     font-size: 20px;
     margin-bottom: 20px;
     border-bottom: 1px solid #333;
     padding-bottom: 10px;
+}
+.accounts-section h3 {
+    font-size: 18px;
+    color: #E0E0E0;
+    margin-top: 30px;
 }
 
 /* Formulaire d'ajout de compte : Aligner les inputs sur une seule ligne (ou deux pour le mobile) */
@@ -481,7 +373,7 @@ canvas {
     padding: 12px 15px;
     background: #2b2b2b;
     border-radius: 10px;
-    margin-bottom: 5px; 
+    margin-bottom: 10px; /* Plus d'espace entre les cartes */
     font-size: 16px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     font-weight: 500;
@@ -489,17 +381,38 @@ canvas {
 .card-list strong {
     color: #FFF;
     font-weight: 600;
+    display: block; /* Force le nom du compte à prendre toute la ligne de gauche */
 }
-.card-list div span:last-child {
-    font-weight: 600;
-    color: #4CD964;
+.card-list div .balance-and-actions {
+    text-align: right;
+    display: flex; /* Permet d'aligner le solde et les boutons */
+    align-items: center;
+    gap: 10px;
 }
-.card-list button {
+
+/* NOUVEAUX STYLES : Indicateurs d'évolution */
+.evolution-detail {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    margin-top: 2px;
+}
+.evolution-detail.income { color: #4CD964; } /* Vert pour le gain */
+.evolution-detail.expense { color: #FF5F6D; } /* Rouge pour la perte */
+
+
+/* Boutons de suppression (gardé) */
+.card-list .delete-btn {
     background: #FF5F6D;
     color: white;
     padding: 4px 8px;
     font-weight: normal;
     font-size: 11px;
+    border-radius: 6px;
+    transform: none;
+}
+.card-list .delete-btn:hover {
+    background: #e65261;
 }
 
 
@@ -556,9 +469,9 @@ canvas {
   .sidebar li::before {
     content: none;
   }
-  .sidebar li[data-target="tableau"]::before { content: '🏠'; font-size: 22px; margin-bottom: 3px; display: block;}
+  .sidebar li[data-target="tableau"]::before { content: '📊'; font-size: 22px; margin-bottom: 3px; display: block;}
   .sidebar li[data-target="comptes"]::before { content: '💳'; font-size: 22px; margin-bottom: 3px; display: block;}
-  .sidebar li[data-target="historique"]::before { content: '⏳'; font-size: 22px; margin-bottom: 3px; display: block;}
+  .sidebar li[data-target="historique"]::before { content: '📈'; font-size: 22px; margin-bottom: 3px; display: block;}
 
 
   .main {
@@ -610,7 +523,7 @@ canvas {
       font-size: 24px;
   }
 
-  .accounts-section, #section-parametres {
+  .accounts-section {
       padding: 20px;
   }
   
