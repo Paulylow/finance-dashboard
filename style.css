@@ -8,8 +8,8 @@
 
 body {
   font-family: 'Poppins', sans-serif;
-  background: #000000; /* Fond noir pour un contraste maximal */
-  color: #E0E0E0; /* Gris clair pour le texte par défaut */
+  background: #000000; 
+  color: #E0E0E0; 
   display: flex;
   min-height: 100vh;
   overflow-x: hidden;
@@ -20,14 +20,14 @@ body {
 /* ------------------ */
 .sidebar {
   width: 220px;
-  background: #1C1C1E; /* Fond sombre pour la sidebar */
+  background: #1C1C1E; 
   padding: 20px 0;
   border-right: 1px solid #333;
   z-index: 100; 
 }
 
 .sidebar h2 {
-  color: #8F7CF9; /* Accent pour le titre */
+  color: #8F7CF9; 
   text-align: center;
   margin-bottom: 30px;
   font-weight: 700;
@@ -49,13 +49,13 @@ body {
   gap: 10px;
 }
 
-.sidebar li::before { /* Icônes via pseudo-éléments pour le desktop */
+.sidebar li::before { 
     font-size: 18px;
-    line-height: 1; /* Aligner */
+    line-height: 1; 
 }
-.sidebar li[data-target="tableau"]::before { content: '📊'; } /* Changement d'icône */
+.sidebar li[data-target="tableau"]::before { content: '📊'; } 
 .sidebar li[data-target="comptes"]::before { content: '💳'; }
-.sidebar li[data-target="historique"]::before { content: '📈'; } /* Changement d'icône */
+.sidebar li[data-target="historique"]::before { content: '📈'; } 
 
 
 .sidebar li:hover {
@@ -98,10 +98,10 @@ body {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background-image: url('avatar.jpg'); /* Remplacez par votre avatar */
+    background-image: url('avatar.jpg'); 
     background-size: cover;
     background-position: center;
-    border: 2px solid #5A49E2; /* Bordure d'accent */
+    border: 2px solid #5A49E2; 
 }
 .user-info p {
     font-weight: 600;
@@ -127,13 +127,13 @@ body {
 .icon-button img {
     width: 24px;
     height: 24px;
-    filter: invert(100%) brightness(0) saturate(100%) hue-rotate(240deg) brightness(1.5); /* Couleur violette */
+    filter: invert(100%) brightness(0) saturate(100%) hue-rotate(240deg) brightness(1.5); 
 }
 
 
 /* Carte du solde principal */
 .balance-card {
-    background: linear-gradient(135deg, #5A49E2, #8F7CF9); /* Gradient Revolut-like */
+    background: linear-gradient(135deg, #5A49E2, #8F7CF9); 
     border-radius: 18px;
     padding: 30px 25px;
     text-align: center;
@@ -156,7 +156,7 @@ body {
 }
 
 .account-button {
-    background: rgba(255,255,255,0.2); /* Bouton Comptes transparent */
+    background: rgba(255,255,255,0.2); 
     border: none;
     border-radius: 20px;
     padding: 8px 20px;
@@ -209,7 +209,7 @@ body {
     text-align: center;
 }
 
-/* Transactions récentes / Historique (Simplifié) */
+/* Historique (Simplifié) */
 .history-section {
     margin-top: 30px;
     background: #1C1C1E;
@@ -224,11 +224,8 @@ body {
     border-bottom: 1px solid #333;
     padding-bottom: 10px;
 }
-.history-section h3 {
-    font-size: 16px;
-    color: #B0B0B0;
-    margin-top: 20px;
-    margin-bottom: 5px;
+.history-section p {
+    margin-bottom: 15px;
 }
 
 /* Formulaires et Boutons généraux */
@@ -241,7 +238,7 @@ input, select {
   color: #E0E0E0;
   font-size: 14px;
   transition: border-color 0.2s;
-  width: 100%; /* Assure que les inputs prennent toute la largeur du conteneur */
+  width: 100%; 
 }
 
 input:focus, select:focus {
@@ -321,14 +318,14 @@ canvas {
     text-align: center;
 }
 
-/* NOUVELLE RÈGLE : Espacement des champs dans les formulaires modales */
+/* Espacement des champs dans les formulaires modales */
 #updateAccountForm {
     display: flex;
     flex-direction: column;
-    gap: 15px; /* Espace de 15px entre chaque champ/bouton */
+    gap: 15px; 
 }
 
-/* Sections pour Comptes et Paramètres */
+/* Sections pour Comptes */
 .accounts-section {
     background: #1C1C1E;
     border-radius: 18px;
@@ -349,7 +346,7 @@ canvas {
     margin-top: 30px;
 }
 
-/* Formulaire d'ajout de compte : Aligner les inputs sur une seule ligne (ou deux pour le mobile) */
+/* Formulaire d'ajout de compte */
 #addAccountForm {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
@@ -365,44 +362,57 @@ canvas {
     padding: 12px 10px;
 }
 
-/* Liste des comptes (Clé-Valeur) */
-.card-list div {
+/* Liste des comptes (CORRIGÉ) */
+.card-list div.account-item-card { 
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 12px 15px;
     background: #2b2b2b;
     border-radius: 10px;
-    margin-bottom: 10px; /* Plus d'espace entre les cartes */
+    margin-bottom: 10px; 
     font-size: 16px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     font-weight: 500;
 }
-.card-list strong {
+
+.account-details {
+    display: flex;
+    flex-direction: column;
+    min-width: 50%; 
+}
+.account-details strong {
     color: #FFF;
     font-weight: 600;
-    display: block; /* Force le nom du compte à prendre toute la ligne de gauche */
-}
-.card-list div .balance-and-actions {
-    text-align: right;
-    display: flex; /* Permet d'aligner le solde et les boutons */
-    align-items: center;
-    gap: 10px;
+    margin-bottom: 2px;
 }
 
-/* NOUVEAUX STYLES : Indicateurs d'évolution */
+.account-balance-area {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-align: right;
+    white-space: nowrap; 
+}
+
+.account-balance {
+    font-weight: 600;
+    color: #FFF; 
+    font-size: 18px;
+}
+
+/* Indicateurs d'évolution */
 .evolution-detail {
     display: block;
-    font-size: 12px;
+    font-size: 13px; 
     font-weight: 500;
     margin-top: 2px;
 }
 .evolution-detail.income { color: #4CD964; } /* Vert pour le gain */
 .evolution-detail.expense { color: #FF5F6D; } /* Rouge pour la perte */
 
-
-/* Boutons de suppression (gardé) */
-.card-list .delete-btn {
+/* Bouton de suppression */
+.delete-btn {
     background: #FF5F6D;
     color: white;
     padding: 4px 8px;
@@ -411,7 +421,7 @@ canvas {
     border-radius: 6px;
     transform: none;
 }
-.card-list .delete-btn:hover {
+.delete-btn:hover {
     background: #e65261;
 }
 
@@ -476,16 +486,12 @@ canvas {
 
   .main {
     padding: 15px;
-    padding-bottom: 120px; /* GARANTIT l'espace pour le graphique au-dessus du menu fixe */
+    padding-bottom: 120px; 
   }
   
   .header-main {
       padding-top: 0;
       padding-bottom: 10px;
-  }
-  .header-main .search-menu {
-      flex-grow: 0; 
-      display: flex; 
   }
   .user-info p {
     font-size: 14px;
@@ -529,15 +535,15 @@ canvas {
   
   /* Formulaire d'ajout de compte mobile: deux lignes */
   #addAccountForm {
-      grid-template-columns: 1fr 1fr; /* Deux colonnes */
-      margin-bottom: 30px; /* Marge pour séparer la liste */
+      grid-template-columns: 1fr 1fr; 
+      margin-bottom: 30px; 
   }
   #addAccountForm input:first-child {
-      grid-column: 1 / span 2; /* Nom du compte prend toute la largeur */
-      margin-bottom: 10px; /* Espace entre le Nom et le Solde */
+      grid-column: 1 / span 2; 
+      margin-bottom: 10px; 
   }
   #addAccountForm button {
-      grid-column: 2 / span 1; /* Le bouton à droite */
+      grid-column: 2 / span 1; 
   }
   
   .card-list div {
