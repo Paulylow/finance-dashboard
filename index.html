@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-  <title>Mon Tableau de Bord Financier</title>
+  <title>Mon Suivi de Patrimoine</title>
   <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -16,11 +16,11 @@
 </head>
 <body>
   <div class="sidebar">
-    <h2>Finance</h2>
+    <h2>Patrimoine</h2>
     <ul>
-      <li data-target="tableau">Tableau de bord</li>
+      <li data-target="tableau">Synthèse</li>
       <li data-target="comptes">Comptes</li>
-      <li data-target="historique">Archives</li>
+      <li data-target="historique">Évolution</li>
     </ul>
   </div>
 
@@ -39,106 +39,57 @@
       </div>
 
       <div class="balance-card">
-        <p class="balance-label">Solde Total</p>
+        <p class="balance-label">Valeur Totale du Patrimoine</p>
         <p class="balance-amount" id="totalBalance">€0,00</p>
-        <button class="account-button">Comptes</button>
+        <button class="account-button update-btn">Mettre à jour un solde</button>
       </div>
 
       <div class="quick-actions">
-        <div class="action-item" data-action="add-money">
-          <div class="action-icon">+</div>
-          <p>Ajouter de l'argent</p>
-        </div>
-        <div class="action-item" data-action="withdraw-money">
-          <div class="action-icon">↓</div>
-          <p>Retirer</p>
+        <div class="action-item update-btn">
+          <div class="action-icon">📈</div>
+          <p>Mettre à jour un compte</p>
         </div>
       </div>
 
       
-<div class="transactions-summary">
-        <h2>Transactions récentes</h2>
-        <ul id="combinedTransactionList" class="transaction-list"></ul>
-      </div>
-
-      <canvas id="balanceChart" class="chart-section"></canvas>
+<canvas id="balanceChart" class="chart-section"></canvas>
 
       
-<div id="modal-add-money" class="modal" style="display: none;">
-        <div class="modal-content">
-          <span class="close-button">&times;</span>
-          <h2>Ajouter un revenu</h2>
-          <form id="incomeForm">
-            <select id="incomeAccount" required>
-              <option value="">Choisir un compte pour le revenu</option>
-            </select>
-            <input type="text" id="incomeAmount" placeholder="Montant (€) ex: 500,50" required />
-            <select id="incomeReason" required>
-                <option value="">Choisir le motif</option>
-                <option value="Salaire">Salaire</option>
-                <option value="Anniversaire">Anniversaire</option>
-                <option value="Prime">Prime</option>
-                <option value="Autres">Autres</option>
-            </select>
-            <button type="submit">Ajouter</button>
-          </form>
-        </div>
-      </div>
-
-      
-<div id="modal-withdraw-money" class="modal" style="display: none;">
-        <div class="modal-content">
-          <span class="close-button">&times;</span>
-          <h2>Retirer une dépense</h2>
-          <form id="expenseForm">
-            <select id="expenseAccount" required>
-              <option value="">Choisir un compte pour la dépense</option>
-            </select>
-            <input type="text" id="amount" placeholder="Montant (€) ex: 102,50" required />
-            <select id="reason" required>
-                <option value="">Choisir le motif</option>
-                <option value="Voiture">Voiture</option>
-                <option value="Nourriture">Nourriture</option>
-                <option value="Transport">Transport</option>
-                <option value="Téléphone">Téléphone</option>
-                <option value="Sport">Sport</option>
-                <option value="Autres">Autres</option>
-            </select>
-            <button type="submit">Ajouter</button>
-          </form>
-        </div>
-      </div>
-
     </section>
     
-<section class="history-section" id="section-historique"> <h2>⏳ Récapitulatif Mensuel</h2>
-    <select id="monthSelector" class="select-full-width"></select>
-    
-    <div class="history-summary">
-        <div class="card expenses">
-            <p>Dépenses du mois</p>
-            <h4 id="historyTotalExpenses">€0</h4>
-        </div>
-        <div class="card income">
-            <p>Revenus du mois</p>
-            <h4 id="historyTotalIncomes">€0</h4>
-        </div>
+<div id="modal-update-account" class="modal" style="display: none;">
+    <div class="modal-content">
+      <span class="close-button">&times;</span>
+      <h2>Mise à Jour du Solde</h2>
+      <form id="updateAccountForm">
+        <select id="updateAccountSelect" required>
+          <option value="">Choisir un compte à mettre à jour</option>
+        </select>
+        <input type="text" id="updateNewBalance" placeholder="Nouveau Solde (€) ex: 1550,75" required />
+        <input type="date" id="updateDate" required />
+        <button type="submit">Enregistrer la Mise à Jour</button>
+      </form>
     </div>
-
-    <h3>Historique des transactions</h3>
-    <ul id="historyTransactionList" class="transaction-list"></ul>
+</div>
+    
+<section class="history-section" id="section-historique"> 
+    <h2>Évolution Historique du Patrimoine</h2>
+    <p style="color: #B0B0B0; text-align: center;">Le graphique ci-dessous retrace l'évolution de la valeur totale de votre patrimoine au fil du temps.</p>
+    <canvas id="evolutionChart" class="chart-section"></canvas>
 </section>
 
-<section class="accounts-section" id="section-comptes"> <h2>💳 Répartition des Comptes</h2>
+<section class="accounts-section" id="section-comptes"> 
+    <h2>💳 Répartition et Performance des Comptes</h2>
       <form id="addAccountForm">
-        <input type="text" id="accountName" placeholder="Nom du Compte (ex: Livret A)" required />
+        <input type="text" id="accountName" placeholder="Nom du Compte (ex: PEE)" required />
         <input type="text" id="accountBalance" placeholder="Solde Initial (€) ex: 1500,00" required />
         <button type="submit">Ajouter Compte</button>
       </form>
       <div id="accountList" class="card-list"></div>
+      
+      <h3>Répartition Actuelle</h3>
       <canvas id="accountChart" class="chart-section"></canvas>
-    </section>
-    
+</section>
     
   </div>
 
