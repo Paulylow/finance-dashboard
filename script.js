@@ -1,13 +1,13 @@
 // === Données initiales ===
+// Structure de compte modifiée : { name: 'Nom', balance: 0, history: [{date: 'jj/mm/aaaa', value: 0}] }
 let accounts = JSON.parse(localStorage.getItem('accounts')) || [];
-
 let totalBalance = accounts.reduce((sum, acc) => sum + acc.balance, 0); 
-
-let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
-let incomes = JSON.parse(localStorage.getItem('incomes')) || [];
 
 document.getElementById('totalBalance').textContent = `€${totalBalance.toLocaleString('fr-FR', { minimumFractionDigits: 2 })}`;
 
+// Nettoyage des anciennes données qui ne sont plus utilisées
+localStorage.removeItem('expenses');
+localStorage.removeItem('incomes');
 
 // === FONCTION UTILITAIRE : Gérer la Virgule et la Conversion en Nombre ===
 function parseAmount(input) {
@@ -15,302 +15,125 @@ function parseAmount(input) {
     return parseFloat(str);
 }
 
-// === FONCTION UTILITAIRE : Mettre à jour les sélecteurs de compte ===
-function updateAccountSelects() {
-    const expenseSelect = document.getElementById('expenseAccount');
-    const incomeSelect = document.getElementById('incomeAccount');
+// === FONCTION UTILITAIRE : Formater la date en jj/mm/aaaa ===
+function formatDate(date) {
+    const d = new Date(date);
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    return `${day}/${month}/${year}`;
+}
+
+// === FONCTION UTILITAIRE : Calculer l'évolution (Gain/Perte et %) ===
+function calculateEvolution(account) {
+    const history = account.history.sort((a, b) => new Date(a.date) - new Date(b.date)); // S'assurer que c'est trié par date
     
-    const defaultOptionExpense = `<option value="">Choisir un compte pour la dépense</option>`;
-    const defaultOptionIncome = `<option value="">Choisir un compte pour le revenu</option>`;
+    if (history.length < 2) {
+        return { change: 0, percentage: 0, fromDate: null };
+    }
+    
+    const latestEntry = history[history.length - 1];
+    const previousEntry = history[history.length - 2];
+
+    const latestValue = latestEntry.value;
+    const previousValue = previousEntry.value;
+
+    const change = latestValue - previousValue;
+    const percentage = previousValue === 0 ? 0 : (change / previousValue) * 100;
+    
+    return { 
+        change, 
+        percentage, 
+        fromDate: previousEntry.date 
+    };
+}
+
+
+// === GESTION DES MODALES (Mise à jour) ===
+const modalUpdateAccount = document.getElementById('modal-update-account');
+const closeButtons = document.querySelectorAll('.close-button');
+
+// Ouvrir la modale (via les boutons de la carte principale et l'action rapide)
+document.querySelectorAll('.update-btn').forEach(item => {
+    item.addEventListener('click', () => {
+        updateAccountSelectForUpdate(); // S'assure que la liste est à jour
+        modalUpdateAccount.style.display = 'flex';
+        // Règle la date du jour par défaut
+        document.getElementById('updateDate').valueAsDate = new Date(); 
+    });
+});
+
+// Fermer la modale
+closeButtons.forEach(button => {
+    button.addEventListener('click', () => {
+        modalUpdateAccount.style.display = 'none';
+    });
+});
+window.addEventListener('click', (event) => {
+    if (event.target === modalUpdateAccount) {
+        modalUpdateAccount.style.display = 'none';
+    }
+});
+
+// Mettre à jour le sélecteur dans la modale de mise à jour
+function updateAccountSelectForUpdate() {
+    const select = document.getElementById('updateAccountSelect');
+    const defaultOption = `<option value="">Choisir un compte à mettre à jour</option>`;
     
     const accountOptions = accounts.map(acc => 
         `<option value="${acc.name}">${acc.name} (€${acc.balance.toLocaleString('fr-FR', { minimumFractionDigits: 2 })})</option>`
     ).join('');
     
-    expenseSelect.innerHTML = defaultOptionExpense + accountOptions;
-    incomeSelect.innerHTML = defaultOptionIncome + accountOptions;
+    select.innerHTML = defaultOption + accountOptions;
 }
 
-// === Graphique dynamique du solde (Ligne - Suivi Agrégé) ===
-const ctx = document.getElementById('balanceChart').getContext('2d');
-let balanceHistory = JSON.parse(localStorage.getItem('balanceHistory')) || [];
 
-function aggregateBalanceData() {
-    if (balanceHistory.length === 0) {
-        balanceHistory.push({
-            date: new Date().toLocaleDateString('fr-FR', { year: 'numeric', month: 'short', day: 'numeric' }),
-            balance: totalBalance
-        });
-    }
-
-    const todayLabel = new Date().toLocaleDateString('fr-FR', { year: 'numeric', month: 'short', day: 'numeric' });
-    const lastEntry = balanceHistory[balanceHistory.length - 1];
-
-    if (lastEntry && lastEntry.date === todayLabel) {
-        lastEntry.balance = totalBalance;
-    } else {
-        balanceHistory.push({
-            date: todayLabel,
-            balance: totalBalance
-        });
-        
-        if (balanceHistory.length > 90) { // Garder max 90 jours
-            balanceHistory.shift();
-        }
+// === SOUMISSION DU FORMULAIRE DE MISE À JOUR ===
+document.getElementById('updateAccountForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    
+    const selectedAccountName = document.getElementById('updateAccountSelect').value;
+    const newBalanceInput = document.getElementById('updateNewBalance').value.trim();
+    const updateDate = document.getElementById('updateDate').value;
+    
+    const newBalance = parseAmount(newBalanceInput);
+    
+    if (isNaN(newBalance) || newBalance < 0 || !selectedAccountName || !updateDate) {
+        alert("Veuillez remplir tous les champs correctement.");
+        return;
     }
     
-    localStorage.setItem('balanceHistory', JSON.stringify(balanceHistory));
-    
-    return {
-        labels: balanceHistory.map(item => item.date),
-        data: balanceHistory.map(item => item.balance)
-    };
-}
-
-let aggregated = aggregateBalanceData();
-
-const balanceChart = new Chart(ctx, {
-  type: 'line',
-  data: {
-    labels: aggregated.labels,
-    datasets: [{
-      label: 'Solde (€)',
-      data: aggregated.data,
-      borderColor: '#8F7CF9',
-      backgroundColor: 'rgba(143,124,249,0.2)',
-      fill: true,
-      tension: 0.3
-    }]
-  },
-  options: {
-    responsive: true,
-    scales: { 
-      y: { beginAtZero: false, grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#E0E0E0' } },
-      x: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#E0E0E0' } }
-    },
-    plugins: { legend: { labels: { color: '#E0E0E0' } } }
-  }
-});
-
-function updateChart() {
-    const updatedData = aggregateBalanceData();
-    balanceChart.data.labels = updatedData.labels;
-    balanceChart.data.datasets[0].data = updatedData.data;
-    balanceChart.update();
-}
-
-
-// === GESTION DES MODALES ===
-const modalAddMoney = document.getElementById('modal-add-money');
-const modalWithdrawMoney = document.getElementById('modal-withdraw-money');
-const closeButtons = document.querySelectorAll('.close-button');
-
-document.querySelectorAll('.action-item').forEach(item => {
-    item.addEventListener('click', (e) => {
-        const action = e.currentTarget.dataset.action;
-        if (action === 'add-money') {
-            modalAddMoney.style.display = 'flex';
-            setTimeout(() => {
-                document.getElementById('incomeAmount').focus(); 
-            }, 0); 
-        } else if (action === 'withdraw-money') {
-            modalWithdrawMoney.style.display = 'flex';
-            setTimeout(() => {
-                document.getElementById('amount').focus(); 
-            }, 0);
-        }
-    });
-});
-
-closeButtons.forEach(button => {
-    button.addEventListener('click', () => {
-        modalAddMoney.style.display = 'none';
-        modalWithdrawMoney.style.display = 'none';
-    });
-});
-
-window.addEventListener('click', (event) => {
-    if (event.target === modalAddMoney) {
-        modalAddMoney.style.display = 'none';
-    }
-    if (event.target === modalWithdrawMoney) {
-        modalWithdrawMoney.style.display = 'none';
-    }
-});
-
-
-// === DÉPENSES (Le compte est maintenant affecté) ===
-document.getElementById('expenseForm').addEventListener('submit', (e) => {
-  e.preventDefault();
-  
-  const selectedAccountName = document.getElementById('expenseAccount').value;
-  const amountInput = document.getElementById('amount').value.trim();
-  const reason = document.getElementById('reason').value; // Récupère la valeur du sélecteur
-  
-  const amount = parseAmount(amountInput);
-
-  if (isNaN(amount) || amount <= 0 || !reason || !selectedAccountName) {
-      alert("Veuillez remplir tous les champs correctement et choisir un compte.");
-      return;
-  }
-  
-  const expense = { id: Date.now(), account: selectedAccountName, reason, amount, date: new Date().toLocaleDateString(), time: new Date().toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'}), type: 'expense' };
-  expenses.push(expense);
-  localStorage.setItem('expenses', JSON.stringify(expenses));
-  
-  const accountIndex = accounts.findIndex(acc => acc.name === selectedAccountName);
-  if (accountIndex !== -1) {
-      accounts[accountIndex].balance -= amount;
-      localStorage.setItem('accounts', JSON.stringify(accounts));
-      
-      updateAccountChart();
-      updateAccountList();
-      updateAccountSelects();
-  }
-
-  updateCombinedTransactionList();
-  updateChart();
-  updateHistory();
-  e.target.reset(); // Réinitialise le formulaire après soumission
-  modalWithdrawMoney.style.display = 'none'; // Ferme la modale
-});
-
-
-// === REVENUS (Le compte est maintenant affecté) ===
-document.getElementById('incomeForm').addEventListener('submit', (e) => {
-  e.preventDefault();
-  
-  const selectedAccountName = document.getElementById('incomeAccount').value;
-  const amountInput = document.getElementById('incomeAmount').value.trim();
-  const reason = document.getElementById('incomeReason').value; // Récupère la valeur du sélecteur
-  
-  const amount = parseAmount(amountInput);
-  
-  if (isNaN(amount) || amount <= 0 || !reason || !selectedAccountName) {
-      alert("Veuillez remplir tous les champs correctement et choisir un compte.");
-      return;
-  }
-  
-  const income = { id: Date.now(), account: selectedAccountName, reason, amount, date: new Date().toLocaleDateString(), time: new Date().toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'}), type: 'income' };
-  incomes.push(income);
-  localStorage.setItem('incomes', JSON.stringify(incomes));
-  
-  const accountIndex = accounts.findIndex(acc => acc.name === selectedAccountName);
-  if (accountIndex !== -1) {
-      accounts[accountIndex].balance += amount;
-      localStorage.setItem('accounts', JSON.stringify(accounts));
-      
-      updateAccountChart();
-      updateAccountList();
-      updateAccountSelects();
-  }
-  
-  updateCombinedTransactionList();
-  updateChart();
-  updateHistory();
-  e.target.reset(); // Réinitialise le formulaire après soumission
-  modalAddMoney.style.display = 'none'; // Ferme la modale
-});
-
-// === Mettre à jour la liste des transactions combinées (Tableau de bord) ===
-function updateCombinedTransactionList() {
-    const combined = [
-        ...expenses.map(t => ({ ...t, type: 'expense' })),
-        ...incomes.map(t => ({ ...t, type: 'income' }))
-    ];
-    
-    // Trier par ID descendant (le plus récent en haut)
-    combined.sort((a, b) => b.id - a.id); 
-
-    const list = document.getElementById('combinedTransactionList');
-    list.innerHTML = '';
-
-    // Afficher les 5 dernières transactions
-    combined.slice(0, 5).forEach((t) => {
-        const isExpense = expenses.some(e => e.id === t.id); // Utiliser expenses.some pour vérifier si c'est une dépense
-        const typeClass = isExpense ? 'expense' : 'income';
-        
-        const li = document.createElement('li');
-        li.innerHTML = `
-            <div class="transaction-icon" style="background:${getIconColor(t.reason, isExpense)};">${getIcon(t.reason)}</div>
-            <div class="transaction-details">
-                <strong>${t.reason}</strong>
-                <span>${t.time} - ${t.date}</span>  <span class="account-name-detail">[${t.account}]</span> </div>
-            <span class="transaction-amount ${typeClass}">
-                ${isExpense ? '-€' : '+€'}${t.amount.toFixed(2)}
-            </span>
-            <button onclick="deleteTransaction('${t.type}', ${t.id}, ${t.amount}, '${t.account}')">X</button>
-        `;
-        list.appendChild(li);
-    });
-}
-
-
-// === FONCTION GÉNÉRIQUE DE SUPPRESSION DE TRANSACTION (Ajuste le compte impacté) ===
-function deleteTransaction(type, id, amount, accountName) {
-    const accountIndex = accounts.findIndex(acc => acc.name === accountName);
-    const multiplier = (type === 'expense') ? 1 : -1; 
+    const accountIndex = accounts.findIndex(acc => acc.name === selectedAccountName);
     
     if (accountIndex !== -1) {
-        accounts[accountIndex].balance += amount * multiplier; 
-        localStorage.setItem('accounts', JSON.stringify(accounts));
+        const account = accounts[accountIndex];
+        const formattedDate = formatDate(updateDate);
+        
+        // 1. Mettre à jour le solde actuel
+        account.balance = newBalance;
 
+        // 2. Ajouter à l'historique (ou mettre à jour si la date existe déjà)
+        const historyIndex = account.history.findIndex(h => h.date === formattedDate);
+
+        if (historyIndex !== -1) {
+            account.history[historyIndex].value = newBalance; // Mise à jour
+        } else {
+            account.history.push({ date: formattedDate, value: newBalance }); // Ajout
+        }
+        
+        // Trier l'historique par date
+        account.history.sort((a, b) => new Date(a.date.split('/').reverse().join('-')) - new Date(b.date.split('/').reverse().join('-')));
+
+        localStorage.setItem('accounts', JSON.stringify(accounts));
+        
         updateAccountChart();
         updateAccountList();
-        updateAccountSelects();
+        updateChart(); // Mise à jour du graphique global
     }
-    
-    if (type === 'expense') {
-        expenses = expenses.filter(exp => exp.id !== id); 
-        localStorage.setItem('expenses', JSON.stringify(expenses));
-    } else if (type === 'income') {
-        incomes = incomes.filter(inc => inc.id !== id);
-        localStorage.setItem('incomes', JSON.stringify(incomes));
-    }
-    
-    updateChart();
-    updateCombinedTransactionList();
-    updateHistory();
-}
 
-// === Fonctions pour les icônes de transaction (basées sur les options des sélecteurs) ===
-function getIcon(reason) {
-    switch (reason.toLowerCase()) {
-        // Revenus
-        case 'salaire': return '💰';
-        case 'anniversaire': return '🎁';
-        case 'prime': return '🌟';
-        // Dépenses
-        case 'voiture': return '🚗';
-        case 'nourriture': return '🍔';
-        case 'transport': return '🚌';
-        case 'téléphone': return '📱';
-        case 'sport': return '🏋️';
-        // Général
-        case 'autres':
-        default: return '❓'; // Icône pour "Autres"
-    }
-}
-
-// Détermine la couleur de fond de l'icône
-function getIconColor(reason, isExpense) {
-    
-    if (isExpense) {
-        return '#FF5F6D'; // Rouge pour toutes les dépenses
-    }
-    
-    switch (reason.toLowerCase()) {
-        case 'salaire':
-        case 'prime':
-        case 'anniversaire':
-        case 'autres': 
-            return '#4CD964'; // Vert pour revenus (y compris 'Autres')
-        case 'nourriture':
-            return '#007AFF'; // Bleu pour nourriture si ce n'est pas une dépense
-        default: 
-            return '#8F7CF9'; // Violet par défaut pour autres revenus
-    }
-}
+    e.target.reset();
+    modalUpdateAccount.style.display = 'none'; 
+});
 
 
 // === GESTION DES COMPTES (PIE CHART) ===
@@ -346,11 +169,17 @@ document.getElementById('addAccountForm').addEventListener('submit', (e) => {
         return;
     }
     
-    accounts.push({ name, balance });
+    // Ajoute le solde initial à l'historique
+    const initialHistory = [{ 
+        date: formatDate(new Date()), 
+        value: balance 
+    }];
+
+    accounts.push({ name, balance, history: initialHistory });
     localStorage.setItem('accounts', JSON.stringify(accounts));
     updateAccountList();
     updateAccountChart(); 
-    updateAccountSelects(); 
+    updateAccountSelectForUpdate(); 
     e.target.reset();
   }
 });
@@ -360,7 +189,7 @@ function deleteAccount(accountName) {
   localStorage.setItem('accounts', JSON.stringify(accounts));
   updateAccountList();
   updateAccountChart();
-  updateAccountSelects(); 
+  updateAccountSelectForUpdate();
 }
 
 function updateAccountList() {
@@ -372,12 +201,28 @@ function updateAccountList() {
   accounts.forEach((acc) => {
     const div = document.createElement('div');
     
+    const evolution = calculateEvolution(acc);
+    const evolutionClass = evolution.change >= 0 ? 'income' : 'expense';
+    const evolutionSign = evolution.change >= 0 ? '+' : '';
+    const evolutionText = evolution.fromDate ? 
+        `(${evolutionSign}€${evolution.change.toFixed(2)} / ${evolutionSign}${evolution.percentage.toFixed(2)}% depuis ${evolution.fromDate})` : 
+        '(Historique insuffisant)';
+    
     const deleteBtn = document.createElement('button');
     deleteBtn.textContent = 'X';
+    deleteBtn.className = 'delete-btn';
     deleteBtn.onclick = () => deleteAccount(acc.name);
     
-    div.innerHTML = `<span><strong>${acc.name}</strong></span> : <span>€${acc.balance.toLocaleString('fr-FR', { minimumFractionDigits: 2 })}</span>`;
-    div.appendChild(deleteBtn);
+    div.innerHTML = `
+        <div>
+            <strong>${acc.name}</strong>
+            <span class="evolution-detail ${evolutionClass}">${evolutionText}</span>
+        </div>
+        <div class="balance-and-actions">
+            <span>€${acc.balance.toLocaleString('fr-FR', { minimumFractionDigits: 2 })}</span>
+            </div>
+    `;
+    div.querySelector('.balance-and-actions').appendChild(deleteBtn);
     list.appendChild(div);
   });
 }
@@ -390,122 +235,109 @@ function updateAccountChart() {
   totalBalance = accounts.reduce((sum, acc) => sum + acc.balance, 0);
   document.getElementById('totalBalance').textContent = `€${totalBalance.toLocaleString('fr-FR', { minimumFractionDigits: 2 })}`;
   
-  updateChart(); 
+  updateChart(); // Met à jour le graphique de solde total
 }
 
 
-// === GESTION DE L'HISTORIQUE MENSUEL ===
-const monthSelector = document.getElementById('monthSelector');
+// === Graphique dynamique du solde Total (Ligne - Suivi Agrégé) ===
+const evolutionCtx = document.getElementById('evolutionChart').getContext('2d');
+let evolutionChart; // Déclaré pour être initialisé plus tard
 
-function getUniqueMonths() {
-    const allTransactions = [...expenses, ...incomes];
-    const uniqueMonths = new Set();
+function aggregateTotalPortfolioHistory() {
+    let combinedHistory = [];
     
-    allTransactions.forEach(t => {
-        const dateParts = t.date.split('/');
-        if (dateParts.length >= 2) {
-            uniqueMonths.add(`${dateParts[1]}/${dateParts[2]}`);
-        }
+    // 1. Combiner tous les historiques de compte
+    accounts.forEach(acc => {
+        acc.history.forEach(entry => {
+            combinedHistory.push({ ...entry, date: entry.date }); // Date est déjà au format jj/mm/aaaa
+        });
     });
 
-    const today = new Date();
-    const currentMonthKey = `${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`;
-    
-    if (!uniqueMonths.has(currentMonthKey)) {
-         uniqueMonths.add(currentMonthKey);
-    }
-    
-    const sortedMonths = Array.from(uniqueMonths).sort((a, b) => {
-        const [mA, yA] = a.split('/').map(Number);
-        const [mB, yB] = b.split('/').map(Number);
-        if (yA !== yB) return yB - yA;
-        return mB - mA;
+    // 2. Agréger les valeurs par date
+    const aggregated = combinedHistory.reduce((acc, entry) => {
+        const key = entry.date;
+        acc[key] = (acc[key] || 0) + entry.value;
+        return acc;
+    }, {});
+
+    // 3. Convertir en tableau trié
+    let totalPortfolioHistory = Object.keys(aggregated).map(dateKey => ({
+        date: dateKey,
+        value: aggregated[dateKey]
+    }));
+
+    // Trier par date pour le graphique
+    totalPortfolioHistory.sort((a, b) => {
+        const dateA = new Date(a.date.split('/').reverse().join('-'));
+        const dateB = new Date(b.date.split('/').reverse().join('-'));
+        return dateA - dateB;
     });
 
-    return sortedMonths;
-}
-
-function renderMonthSelector() {
-    const uniqueMonths = getUniqueMonths();
-    monthSelector.innerHTML = '';
-    
-    uniqueMonths.forEach(key => {
-        const [month, year] = key.split('/');
-        const monthName = new Date(year, month - 1, 1).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
-        const option = document.createElement('option');
-        option.value = key;
-        option.textContent = monthName.charAt(0).toUpperCase() + monthName.slice(1);
-        monthSelector.appendChild(option);
-    });
-
-    const today = new Date();
-    const currentMonthKey = `${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`;
-    monthSelector.value = currentMonthKey;
-}
-
-function updateHistory() {
-    renderMonthSelector();
-    
-    const selectedMonthKey = monthSelector.value;
-    if (!selectedMonthKey) return;
-    
-    const [selectedMonth, selectedYear] = selectedMonthKey.split('/');
-
-    const allTransactions = [...expenses, ...incomes];
-    
-    const filteredTransactions = allTransactions.filter(t => {
-        const dateParts = t.date.split('/');
-        if (dateParts.length >= 2) {
-            const transactionMonth = dateParts[1];
-            const transactionYear = dateParts[2];
-            return transactionMonth === selectedMonth && transactionYear === selectedYear;
-        }
-        return false;
-    });
-    
-    let totalExpenses = 0;
-    let totalIncomes = 0;
-    
-    const list = document.getElementById('historyTransactionList');
-    list.innerHTML = '';
-
-    filteredTransactions.sort((a, b) => b.id - a.id).forEach(t => {
-        const isExpense = expenses.some(e => e.id === t.id);
-        const typeClass = isExpense ? 'expense' : 'income';
-        
-        if (isExpense) {
-            totalExpenses += t.amount;
+    // 4. Lisser les données (garder la valeur la plus récente si plusieurs mises à jour le même jour)
+    const finalHistory = [];
+    totalPortfolioHistory.forEach(entry => {
+        if (finalHistory.length > 0) {
+            // S'assurer que chaque entrée suivante est au moins égale à la précédente
+            // Pour afficher une courbe de solde progressif
+            const lastEntry = finalHistory[finalHistory.length - 1];
+            if (new Date(entry.date.split('/').reverse().join('-')) > new Date(lastEntry.date.split('/').reverse().join('-'))) {
+                 finalHistory.push(entry);
+            } else if (entry.value !== lastEntry.value) {
+                // Si la date est la même (ou plus ancienne, ce qui ne devrait pas arriver après le tri), 
+                // mettez à jour la dernière entrée
+                lastEntry.value = entry.value; 
+            }
         } else {
-            totalIncomes += t.amount;
+            finalHistory.push(entry);
         }
-        
-        const li = document.createElement('li');
-        li.innerHTML = `
-            <div class="transaction-icon" style="background:${getIconColor(t.reason, isExpense)};">${getIcon(t.reason)}</div>
-            <div class="transaction-details">
-                <strong>${t.reason}</strong>
-                <span>${t.time} - ${t.date}</span>
-                <span class="account-name-detail">[${t.account}]</span>
-            </div>
-            <span class="transaction-amount ${typeClass}">
-                ${isExpense ? '-€' : '+€'}${t.amount.toFixed(2)}
-            </span>
-        `;
-        list.appendChild(li);
     });
+
+    // 5. Gérer les données manquantes (remplir avec la valeur précédente)
+    // Ce n'est pas nécessaire pour un simple affichage des points de mise à jour. 
     
-    document.getElementById('historyTotalExpenses').textContent = `€${totalExpenses.toLocaleString('fr-FR', { minimumFractionDigits: 2 })}`;
-    document.getElementById('historyTotalIncomes').textContent = `€${totalIncomes.toLocaleString('fr-FR', { minimumFractionDigits: 2 })}`;
+    return {
+        labels: finalHistory.map(item => item.date),
+        data: finalHistory.map(item => item.value)
+    };
 }
 
-monthSelector.addEventListener('change', updateHistory);
 
+function initEvolutionChart() {
+    const aggregated = aggregateTotalPortfolioHistory();
 
-// === ACTIONS (SUPPRIMÉES) ===
-let myStocks = [];
-function fetchStocks() { 
-    // Fonction vide car la section est supprimée
-} 
+    evolutionChart = new Chart(evolutionCtx, {
+      type: 'line',
+      data: {
+        labels: aggregated.labels,
+        datasets: [{
+          label: 'Patrimoine Total (€)',
+          data: aggregated.data,
+          borderColor: '#4CD964', // Couleur verte pour le patrimoine
+          backgroundColor: 'rgba(76, 217, 100, 0.2)',
+          fill: true,
+          tension: 0.3
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: { 
+          y: { beginAtZero: false, grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#E0E0E0' } },
+          x: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#E0E0E0' } }
+        },
+        plugins: { legend: { labels: { color: '#E0E0E0' } } }
+      }
+    });
+}
+
+function updateChart() {
+    if (!evolutionChart) {
+        initEvolutionChart();
+    }
+    const updatedData = aggregateTotalPortfolioHistory();
+    evolutionChart.data.labels = updatedData.labels;
+    evolutionChart.data.datasets[0].data = updatedData.data;
+    evolutionChart.update();
+}
 
 
 // === NAVIGATION (Single Page Application - SPA) ===
@@ -516,12 +348,11 @@ function showSection(target) {
   });
 
   // Masquer les canvas manuellement
-  document.getElementById('balanceChart').style.display = 'none';
+  document.getElementById('evolutionChart').style.display = 'none';
   document.getElementById('accountChart').style.display = 'none';
 
 
   // 2. Retirer la classe active de tous les éléments de navigation
-  // Cible uniquement les éléments dans la sidebar (car pas de .bottom-nav dans le HTML)
   document.querySelectorAll('.sidebar li').forEach(li => li.classList.remove('active'));
 
   // 3. Afficher la section ciblée
@@ -531,29 +362,23 @@ function showSection(target) {
   }
 
   // 4. Afficher les éléments spécifiques
-  if (target === 'tableau') {
-      document.getElementById('balanceChart').style.display = 'block'; 
-      updateCombinedTransactionList(); 
+  if (target === 'historique') {
+      document.getElementById('evolutionChart').style.display = 'block'; 
+      updateChart();
   }
   
-  if (target === 'comptes') { // Ajout de la logique pour afficher le graphique des comptes
+  if (target === 'comptes') {
       document.getElementById('accountChart').style.display = 'block';
   }
 
   // 5. Activer le lien correspondant
-  const activeLink = document.querySelector(`.sidebar li[data-target="${target}"]`); // Simplifié
+  const activeLink = document.querySelector(`.sidebar li[data-target="${target}"]`);
   if (activeLink) {
       activeLink.classList.add('active');
-  }
-
-  // 6. Actualiser l’historique si nécessaire
-  if (target === 'historique') {
-      updateHistory(); 
   }
 }
 
 // === Gestion des clics sur la sidebar ===
-// Cible uniquement les liens de la sidebar
 const allNavLinks = document.querySelectorAll('.sidebar li'); 
 
 allNavLinks.forEach(link => {
@@ -563,16 +388,10 @@ allNavLinks.forEach(link => {
   });
 });
 
-// === Fonction pour forcer la fermeture des modales au démarrage ===
-function ensureModalsClosed() {
-    document.getElementById('modal-add-money').style.display = 'none';
-    document.getElementById('modal-withdraw-money').style.display = 'none';
-}
 
 // === Initialisation de l'affichage au chargement ===
-updateCombinedTransactionList();
-showSection('tableau'); // Démarre sur le tableau de bord
 updateAccountList();
 updateAccountChart();
-updateAccountSelects();
-ensureModalsClosed();
+updateAccountSelectForUpdate();
+initEvolutionChart(); 
+showSection('tableau'); // Démarre sur le tableau de bord
